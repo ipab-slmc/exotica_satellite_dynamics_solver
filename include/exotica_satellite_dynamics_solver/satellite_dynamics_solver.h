@@ -29,7 +29,6 @@
 
 #ifndef EXOTICA_SATELLITE_DYNAMICS_SOLVER_SATELLITE_DYNAMICS_SOLVER_H_
 #define EXOTICA_SATELLITE_DYNAMICS_SOLVER_SATELLITE_DYNAMICS_SOLVER_H_
-#define NDEBUG
 
 /// TODO: remove this pragma once Pinocchio removes neutralConfiguration/
 /// and fixes their deprecation warnings. (Relates to #547)
