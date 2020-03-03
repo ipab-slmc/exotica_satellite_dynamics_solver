@@ -1,0 +1,5 @@
+<library path="lib/libexotica_satellite_dynamics_solver">
+  <class name="exotica/SatelliteDynamicsSolver" type="exotica::SatelliteDynamicsSolver" base_class_type="exotica::DynamicsSolver">
+    <description>Satellite dynamics system</description>
+  </class>
+</library>
