@@ -46,7 +46,7 @@ void SatelliteDynamicsSolver::AssignScene(ScenePtr scene_in)
     // }
     // else if (scene_in->GetKinematicTree().GetControlledBaseType() == BaseType::FLOATING)
     // {
-        pinocchio::urdf::buildModel(scene_in->GetKinematicTree().GetRobotModel()->getURDF(), pinocchio::JointModelFreeFlyer(), model_, verbose);
+    pinocchio::urdf::buildModel(scene_in->GetKinematicTree().GetRobotModel()->getURDF(), pinocchio::JointModelFreeFlyer(), model_, verbose);
     // }
     // else
     // {
@@ -88,13 +88,13 @@ Eigen::VectorXd SatelliteDynamicsSolver::f(const StateVector& x, const ControlVe
     pinocchio::aba(model_, *pinocchio_data_, q, q_dot, u);
     Eigen::VectorXd x_dot = Eigen::VectorXd::Zero(x.size());
 
-    x_dot.head<3>() = v; // velocity in world frame
+    x_dot.head<3>() = v;                                                                                      // velocity in world frame
     x_dot.segment<4>(3) = 0.5 * (quaternion * Eigen::Quaterniond(0, omega(0), omega(1), omega(2))).coeffs();  // via quaternion derivative (cf. https://math.stackexchange.com/a/2099673)
 
     // x_dot.head(num_positions_) = x.tail(num_positions_);
     x_dot.tail(num_velocities_) = pinocchio_data_->ddq;
 
-    for (int i = 0; i < x_dot.size(); ++ i)
+    for (int i = 0; i < x_dot.size(); ++i)
         if (!std::isfinite(x_dot(i)))
             x_dot(i) = 0;
 
