@@ -136,16 +136,14 @@ Eigen::VectorXd SatelliteDynamicsSolver::f(const StateVector& x, const ControlVe
     const Eigen::Vector3d omega = x.tail<3>();
 
     Eigen::VectorXd q_dot = Eigen::VectorXd::Zero(num_velocities_);
-
-    // HIGHLIGHT_NAMED("satellite x", x);
     q_dot << v, omega;
 
     auto f_ext = GetExternalForceInputFromThrusters(u);
     pinocchio::aba(model_, *pinocchio_data_, q, q_dot, Eigen::VectorXd::Zero(model_.nv), f_ext);
 
-    Eigen::VectorXd x_dot = Eigen::VectorXd::Zero(x.size());
+    Eigen::VectorXd x_dot = Eigen::VectorXd::Zero(2 * num_velocities_);
 
-    x_dot.head<3>() = v;  // velocity in world frame
+    x_dot.head<3>() = v;                                                                                      // velocity in world frame
     x_dot.segment<4>(3) = 0.5 * (quaternion * Eigen::Quaterniond(0, omega(0), omega(1), omega(2))).coeffs();  // via quaternion derivative (cf. https://math.stackexchange.com/a/2099673)
 
     // x_dot.head(num_positions_) = x.tail(num_positions_);
@@ -176,23 +174,57 @@ Eigen::VectorXd SatelliteDynamicsSolver::StateDelta(const StateVector& x_1, cons
     return dx;
 }
 
-Eigen::MatrixXd SatelliteDynamicsSolver::fx(const StateVector& x, const ControlVector& u)
+void SatelliteDynamicsSolver::Integrate(const StateVector& x, const StateVector& dx, const double dt, StateVector& xout)
 {
-    const int NV = num_velocities_;
-    const int NDX = 2 * NV;
-
-    auto f_ext = GetExternalForceInputFromThrusters(u);
-    pinocchio::computeABADerivatives(model_, *pinocchio_data_, x.head(num_positions_).eval(), x.tail(num_velocities_).eval(), Eigen::VectorXd::Zero(model_.nv), f_ext);
-
-    Eigen::MatrixXd fx_symb = Eigen::MatrixXd::Zero(NDX, NDX);
-    fx_symb.topRightCorner(NV, NV) = Eigen::MatrixXd::Identity(NV, NV);
-    fx_symb.bottomLeftCorner(NV, NV) = pinocchio_data_->ddq_dq;
-
-    return fx_symb;
+    Eigen::VectorXd dx_times_dt = dt * dx;
+    pinocchio::integrate(model_, x.head(num_positions_), dx_times_dt.head(num_velocities_), xout.head(num_positions_));
+    xout.tail(num_velocities_) = x.tail(num_velocities_) + dx_times_dt.tail(num_velocities_);
 }
 
-// Eigen::MatrixXd SatelliteDynamicsSolver::fu(const StateVector& x, const
-// ControlVector& u)
+Eigen::VectorXd SatelliteDynamicsSolver::SimulateOneStep(const StateVector& x, const ControlVector& u)
+{
+    Eigen::VectorXd xout(num_positions_ + num_velocities_);
+    Eigen::VectorXd dx = f(x, u);
+    Integrate(x, dx, dt_, xout);
+    return xout;
+}
+
+Eigen::MatrixXd SatelliteDynamicsSolver::fx(const StateVector& x, const ControlVector& u)
+{
+    // Finite differences
+    constexpr double eps = 1e-6;
+    const int NDX_ = 2 * num_velocities_;
+
+    Eigen::MatrixXd fx_fd(NDX_, NDX_);
+
+    const int NX_ = num_positions_ + num_velocities_;
+    Eigen::VectorXd x_low(NX_), x_high(NX_), xdiff(NDX_);
+    for (int i = 0; i < NDX_; ++i)
+    {
+        xdiff.setZero();
+        xdiff(i) = eps / 2.0;
+
+        Integrate(x, xdiff, -1., x_low);
+        Integrate(x, xdiff, 1., x_high);
+
+        fx_fd.col(i) = StateDelta(f(x_high, u), f(x_low, u)) / eps;
+    }
+
+    return fx_fd;
+    //     const int NV = num_velocities_;
+    //     const int NDX = 2 * NV;
+
+    //     auto f_ext = GetExternalForceInputFromThrusters(u);
+    //     pinocchio::computeABADerivatives(model_, *pinocchio_data_, x.head(num_positions_).eval(), x.tail(num_velocities_).eval(), Eigen::VectorXd::Zero(model_.nv), f_ext);
+
+    //     Eigen::MatrixXd fx_symb = Eigen::MatrixXd::Zero(NDX, NDX);
+    //     fx_symb.topRightCorner(NV, NV) = Eigen::MatrixXd::Identity(NV, NV);
+    //     fx_symb.bottomLeftCorner(NV, NV) = pinocchio_data_->ddq_dq;
+
+    //     return fx_symb;
+}
+
+// Eigen::MatrixXd SatelliteDynamicsSolver::fu(const StateVector& x, const ControlVector& u)
 // {
 //     const int NV = num_velocities_;
 //     const int NDX = 2 * NV;

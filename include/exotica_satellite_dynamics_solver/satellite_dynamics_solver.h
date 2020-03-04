@@ -62,17 +62,18 @@ public:
 
     StateVector f(const StateVector& x, const ControlVector& u) override;
     StateDerivative fx(const StateVector& x, const ControlVector& u) override;
-    // ControlDerivative fu(const StateVector& x, const ControlVector& u)
-    // override;
+    // ControlDerivative fu(const StateVector& x, const ControlVector& u) override;
 
     Eigen::VectorXd GetPosition(Eigen::VectorXdRefConst x_in) override;
     StateVector StateDelta(const StateVector& x_1, const StateVector& x_2) override;
+    void Integrate(const StateVector& x, const StateVector& dx, const double dt, StateVector& xout) override;
 
 private:
     pinocchio::Model model_;
     std::unique_ptr<pinocchio::Data> pinocchio_data_;
 
     pinocchio::container::aligned_vector<pinocchio::Force> GetExternalForceInputFromThrusters(const ControlVector& u);
+    StateVector SimulateOneStep(const StateVector& x, const ControlVector& u) override;
 };
 }  // namespace exotica
 
