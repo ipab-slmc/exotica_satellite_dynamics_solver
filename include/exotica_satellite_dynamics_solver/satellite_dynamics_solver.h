@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019, Wolfgang Merkt
+// Copyright (c) 2019-2020, The University of Edinburgh, University of Oxford
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -61,14 +61,18 @@ public:
     void AssignScene(ScenePtr scene_in) override;
 
     StateVector f(const StateVector& x, const ControlVector& u) override;
-    // StateDerivative fx(const StateVector& x, const ControlVector& u) override;
-    // ControlDerivative fu(const StateVector& x, const ControlVector& u) override;
-    // ControlVector InverseDynamics(const StateVector& x) override;
+    StateDerivative fx(const StateVector& x, const ControlVector& u) override;
+    // ControlDerivative fu(const StateVector& x, const ControlVector& u)
+    // override;
+
     Eigen::VectorXd GetPosition(Eigen::VectorXdRefConst x_in) override;
+    StateVector StateDelta(const StateVector& x_1, const StateVector& x_2) override;
 
 private:
     pinocchio::Model model_;
     std::unique_ptr<pinocchio::Data> pinocchio_data_;
+
+    pinocchio::container::aligned_vector<pinocchio::Force> GetExternalForceInputFromThrusters(const ControlVector& u);
 };
 }  // namespace exotica
 
