@@ -13,7 +13,7 @@
     <DynamicTimeIndexedShootingProblem Name="satellite">
         <PlanningScene>
             <Scene>
-                <JointGroup>base</JointGroup>
+                <JointGroup>base_with_arm</JointGroup>
                 <URDF>{exotica_satellite_dynamics_solver}/resources/robots/satellite/satellite.urdf</URDF>
                 <SRDF>{exotica_satellite_dynamics_solver}/resources/robots/satellite/satellite.srdf</SRDF>
                 <SetRobotDescriptionRosParams>1</SetRobotDescriptionRosParams>

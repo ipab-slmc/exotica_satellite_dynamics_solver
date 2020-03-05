@@ -5,7 +5,13 @@
 -->
 <robot name="satellite">
     <group name="base">
-        <joint name="world_joint" />
+        <joint name="world_joint"/>
+    </group>
+    <group name="base_with_arm">
+        <joint name="world_joint"/>
+        <joint name="base_to_arm"/>
+        <joint name="arm_one_to_two"/>
+        <joint name="arm_two_to_three"/>
     </group>
     <!-- <virtual_joint name="world_joint" type="floating" parent_frame="world_frame" child_link="base_dummy" /> -->
     <virtual_joint name="world_joint" type="floating" parent_frame="world_frame" child_link="base_link" />
