@@ -27,11 +27,14 @@
             </Scene>
         </PlanningScene>
 
-        <T>150</T>
+        <T>200</T>
         <tau>0.02</tau>
 
-        <Q_rate>0</Q_rate>
-        <!-- <Q>0 0 0   0 0 0 0   0 0 0 1 1 1</Q> -->
+        <Q_rate>1e-3</Q_rate>
+        <Q>
+            0 0 0 0 0 0
+            1 1 1 1 1 1
+        </Q>
         <Qf>
             1 1 1 1 1 1
             1 1 1 1 1 1
@@ -40,7 +43,7 @@
         <Qf_rate>1000</Qf_rate>
 
         <!-- Rate penalizes large control forces. -->
-        <R_rate>0.001</R_rate>
+        <R_rate>1e-3</R_rate>
 
         <StartState>0 0 0  1 0 0 0   0 0 0 0 0 0</StartState>
         <GoalState> 0 20 0   0 -0.4871745 0 -0.8733046   0 0 0 0 0 0</GoalState>
