@@ -53,6 +53,32 @@ void SatelliteDynamicsSolver::AssignScene(ScenePtr scene_in)
 
     // Create Pinocchio data
     pinocchio_data_.reset(new pinocchio::Data(model_));
+
+    // Get frame Ids
+    bot0_id_ = model_.getFrameId("base_to_thruster_bot");
+    bot1_id_ = model_.getFrameId("base_to_thruster_bot_1");
+    bot2_id_ = model_.getFrameId("base_to_thruster_bot_2");
+    bot3_id_ = model_.getFrameId("base_to_thruster_bot_3");
+    bot4_id_ = model_.getFrameId("base_to_thruster_bot_4");
+    top0_id_ = model_.getFrameId("base_to_thruster_top");
+    top1_id_ = model_.getFrameId("base_to_thruster_top_1");
+    top2_id_ = model_.getFrameId("base_to_thruster_top_2");
+    top3_id_ = model_.getFrameId("base_to_thruster_top_3");
+    top4_id_ = model_.getFrameId("base_to_thruster_top_4");
+
+    // Force directions
+    f1_ << 0, 0, -1, 0, 0, 0;
+    f2_ << 0, 1, 0, 0, 0, 0;
+    f3_ << -1, 0, 0, 0, 0, 0;
+    f4_ << 0, -1, 0, 0, 0, 0;
+    f5_ << 1, 0, 0, 0, 0, 0;
+
+    // Pre-allocate data for f, fx, fu
+    const int ndx = get_num_state_derivative();
+    xdot_analytic_.setZero(ndx);
+    fx_analytic_.setZero(ndx, ndx);
+    fx_analytic_.topRightCorner(num_velocities_, num_velocities_).setIdentity();
+    fu_analytic_.setZero(ndx, num_controls_);
 }
 
 pinocchio::container::aligned_vector<pinocchio::Force> SatelliteDynamicsSolver::GetExternalForceInputFromThrusters(const ControlVector& u)
@@ -61,100 +87,42 @@ pinocchio::container::aligned_vector<pinocchio::Force> SatelliteDynamicsSolver::
     pinocchio::container::aligned_vector<pinocchio::Force> f_ext;
 
     // Non-actuated joints
+    auto bot0 = model_.frames[bot0_id_].placement,
+         bot1 = model_.frames[bot1_id_].placement,
+         bot2 = model_.frames[bot2_id_].placement,
+         bot3 = model_.frames[bot3_id_].placement,
+         bot4 = model_.frames[bot4_id_].placement;
 
-    // Get frame Ids
-    int bot0_id = model_.getFrameId("base_to_thruster_bot"),
-        bot1_id = model_.getFrameId("base_to_thruster_bot_1"),
-        bot2_id = model_.getFrameId("base_to_thruster_bot_2"),
-        bot3_id = model_.getFrameId("base_to_thruster_bot_3"),
-        bot4_id = model_.getFrameId("base_to_thruster_bot_4");
-
-    auto bot0 = model_.frames[bot0_id].placement,
-         bot1 = model_.frames[bot1_id].placement,
-         bot2 = model_.frames[bot2_id].placement,
-         bot3 = model_.frames[bot3_id].placement,
-         bot4 = model_.frames[bot4_id].placement;
-
-    int top0_id = model_.getFrameId("base_to_thruster_top"),
-        top1_id = model_.getFrameId("base_to_thruster_top_1"),
-        top2_id = model_.getFrameId("base_to_thruster_top_2"),
-        top3_id = model_.getFrameId("base_to_thruster_top_3"),
-        top4_id = model_.getFrameId("base_to_thruster_top_4");
-
-    auto top0 = model_.frames[top0_id].placement,
-         top1 = model_.frames[top1_id].placement,
-         top2 = model_.frames[top2_id].placement,
-         top3 = model_.frames[top3_id].placement,
-         top4 = model_.frames[top4_id].placement;
-
-    Eigen::VectorXd f1(6), f2(6), f3(6), f4(6), f5(6);
-    f1 << 0, 0, -1, 0, 0, 0;
-    f2 << 0, 1, 0, 0, 0, 0;
-    f3 << -1, 0, 0, 0, 0, 0;
-    f4 << 0, -1, 0, 0, 0, 0;
-    f5 << 1, 0, 0, 0, 0, 0;
+    auto top0 = model_.frames[top0_id_].placement,
+         top1 = model_.frames[top1_id_].placement,
+         top2 = model_.frames[top2_id_].placement,
+         top3 = model_.frames[top3_id_].placement,
+         top4 = model_.frames[top4_id_].placement;
 
     f_ext.push_back(pinocchio::Force::Zero());
-    f_ext.push_back(bot0.act(pinocchio::Force(f1 * u(0))) +
-                    bot1.act(pinocchio::Force(f2 * u(1))) +
-                    bot2.act(pinocchio::Force(f3 * u(2))) +
-                    bot3.act(pinocchio::Force(f4 * u(3))) +
-                    bot4.act(pinocchio::Force(f5 * u(4))) +
+    f_ext.push_back(bot0.act(pinocchio::Force(f1_ * u(0))) +
+                    bot1.act(pinocchio::Force(f2_ * u(1))) +
+                    bot2.act(pinocchio::Force(f3_ * u(2))) +
+                    bot3.act(pinocchio::Force(f4_ * u(3))) +
+                    bot4.act(pinocchio::Force(f5_ * u(4))) +
 
-                    top0.act(pinocchio::Force(-1 * f1 * u(5))) +
-                    top1.act(pinocchio::Force(f2 * u(6))) +
-                    top2.act(pinocchio::Force(f3 * u(7))) +
-                    top3.act(pinocchio::Force(f4 * u(8))) +
-                    top4.act(pinocchio::Force(f5 * u(9))));
-
-    // HIGHLIGHT_NAMED("force",
-    //     bot0.act(pinocchio::Force(f1 * u(0))) +
-    //     bot1.act(pinocchio::Force(f2 * u(1))) +
-    //     bot2.act(pinocchio::Force(f3 * u(2))) +
-    //     bot3.act(pinocchio::Force(f4 * u(3))) +
-    //     bot4.act(pinocchio::Force(f5 * u(4)))
-    // );
+                    top0.act(pinocchio::Force(-1 * f1_ * u(5))) +
+                    top1.act(pinocchio::Force(f2_ * u(6))) +
+                    top2.act(pinocchio::Force(f3_ * u(7))) +
+                    top3.act(pinocchio::Force(f4_ * u(8))) +
+                    top4.act(pinocchio::Force(f5_ * u(9))));
 
     return f_ext;
 }
 
 Eigen::VectorXd SatelliteDynamicsSolver::f(const StateVector& x, const ControlVector& u)
 {
-    Eigen::Quaterniond quaternion;
-
-    if (x.segment<4>(3).isApprox(Eigen::Vector4d::Zero()))
-        quaternion = Eigen::Quaterniond(1, 0, 0, 0);
-    else
-        quaternion = Eigen::Quaterniond(x.segment<4>(3)).normalized();
-
-    const Eigen::Vector3d translation = x.head<3>();
-    Eigen::VectorXd q = Eigen::VectorXd::Zero(num_positions_);
-    // HIGHLIGHT_NAMED("asdf",  quaternion.vec());
-    // HIGHLIGHT_NAMED("asdf",  translation);
-    q << translation, quaternion.x(), quaternion.y(), quaternion.z(), quaternion.w();
-    const Eigen::VectorXd v = x.segment<3>(7);
-    const Eigen::Vector3d omega = x.tail<3>();
-
-    Eigen::VectorXd q_dot = Eigen::VectorXd::Zero(num_velocities_);
-    q_dot << v, omega;
-
     auto f_ext = GetExternalForceInputFromThrusters(u);
-    pinocchio::aba(model_, *pinocchio_data_, q, q_dot, Eigen::VectorXd::Zero(model_.nv), f_ext);
+    pinocchio::aba(model_, *pinocchio_data_, x.head(num_positions_).eval(), x.tail(num_velocities_).eval(), Eigen::VectorXd::Zero(model_.nv), f_ext);
+    xdot_analytic_.head(num_velocities_) = x.tail(num_velocities_);
+    xdot_analytic_.tail(num_velocities_) = pinocchio_data_->ddq;
 
-    Eigen::VectorXd x_dot = Eigen::VectorXd::Zero(2 * num_velocities_);
-
-    x_dot.head<3>() = v;                                                                                      // velocity in world frame
-    x_dot.segment<4>(3) = 0.5 * (quaternion * Eigen::Quaterniond(0, omega(0), omega(1), omega(2))).coeffs();  // via quaternion derivative (cf. https://math.stackexchange.com/a/2099673)
-
-    // x_dot.head(num_positions_) = x.tail(num_positions_);
-    x_dot.tail(num_velocities_) = pinocchio_data_->ddq;
-
-    // HIGHLIGHT_NAMED("Satellite x_dot", x_dot);
-    for (int i = 0; i < x_dot.size(); ++i)
-        if (!std::isfinite(x_dot(i)))
-            x_dot(i) = 0;
-
-    return x_dot;
+    return xdot_analytic_;
 }
 
 Eigen::VectorXd SatelliteDynamicsSolver::GetPosition(Eigen::VectorXdRefConst x_in)
@@ -191,37 +159,20 @@ Eigen::VectorXd SatelliteDynamicsSolver::SimulateOneStep(const StateVector& x, c
 
 Eigen::MatrixXd SatelliteDynamicsSolver::fx(const StateVector& x, const ControlVector& u)
 {
-    // Finite differences
-    constexpr double eps = 1e-6;
-    const int NDX_ = 2 * num_velocities_;
+    auto f_ext = GetExternalForceInputFromThrusters(u);
 
-    Eigen::MatrixXd fx_fd(NDX_, NDX_);
+    // Four quadrants should be: 0, Identity, ddq_dq, ddq_dv
+    // 0 and Identity are set during initialisation. Here, we pass references to ddq_dq, ddq_dv to the algorithm.
+    pinocchio::computeABADerivatives(model_, *pinocchio_data_,
+                                     x.head(num_positions_).eval(),
+                                     x.tail(num_velocities_).eval(),
+                                     Eigen::VectorXd::Zero(num_velocities_).eval(),
+                                     f_ext,
+                                     fx_analytic_.block(num_velocities_, 0, num_velocities_, num_velocities_),
+                                     fx_analytic_.block(num_velocities_, num_velocities_, num_velocities_, num_velocities_),
+                                     fu_analytic_.bottomRightCorner(num_velocities_, num_velocities_));
 
-    const int NX_ = num_positions_ + num_velocities_;
-    Eigen::VectorXd x_low(NX_), x_high(NX_), xdiff(NDX_);
-    for (int i = 0; i < NDX_; ++i)
-    {
-        xdiff.setZero();
-        xdiff(i) = eps / 2.0;
-
-        Integrate(x, xdiff, -1., x_low);
-        Integrate(x, xdiff, 1., x_high);
-
-        fx_fd.col(i) = StateDelta(f(x_high, u), f(x_low, u)) / eps;
-    }
-
-    return fx_fd;
-    //     const int NV = num_velocities_;
-    //     const int NDX = 2 * NV;
-
-    //     auto f_ext = GetExternalForceInputFromThrusters(u);
-    //     pinocchio::computeABADerivatives(model_, *pinocchio_data_, x.head(num_positions_).eval(), x.tail(num_velocities_).eval(), Eigen::VectorXd::Zero(model_.nv), f_ext);
-
-    //     Eigen::MatrixXd fx_symb = Eigen::MatrixXd::Zero(NDX, NDX);
-    //     fx_symb.topRightCorner(NV, NV) = Eigen::MatrixXd::Identity(NV, NV);
-    //     fx_symb.bottomLeftCorner(NV, NV) = pinocchio_data_->ddq_dq;
-
-    //     return fx_symb;
+    return fx_analytic_;
 }
 
 // Eigen::MatrixXd SatelliteDynamicsSolver::fu(const StateVector& x, const ControlVector& u)
