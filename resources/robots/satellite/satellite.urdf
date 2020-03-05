@@ -24,17 +24,18 @@
       <origin xyz="0 0 0"/>
       <inertia ixx="150.0" ixy="0.0" ixz="0.0" iyy="150.0" iyz="0.0" izz="384.0"/>
     </inertial>
-    <visual>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="package://exotica_satellite_dynamics_solver/resources/robots/satellite/satellite_base.dae" scale="1 1 1"/>
-      </geometry>
-    </visual>
     <!-- <visual>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
             <geometry>
-                <box size="2.5 2.5 4"/>
+
+                <mesh filename="package://exotica_satellite_dynamics_solver/resources/robots/satellite/satellite_base.dae" scale="1 1 1"/>
             </geometry>
         </visual> -->
+    <visual>
+      <geometry>
+        <box size="2.5 2.5 4"/>
+      </geometry>
+    </visual>
     <!-- <collision>
             <origin rpy="0 0 0" xyz="0 0 0"/>
             <geometry>
@@ -409,6 +410,70 @@
     <parent link="base_link"/>
     <child link="bot_array"/>
     <origin xyz="0 -1 -1"/>
+  </joint>
+  <!-- arm -->
+  <link name="arm_one">
+    <visual>
+      <geometry>
+        <cylinder length="0.5" radius="0.1"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <material name="white"/>
+    </visual>
+    <inertial>
+      <mass value="0"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="0" ixy="0.0" ixz="0.0" iyy="0" iyz="0.0" izz="0"/>
+    </inertial>
+  </link>
+  <link name="arm_two">
+    <visual>
+      <geometry>
+        <cylinder length="2" radius="0.1"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 1"/>
+      <material name="white"/>
+    </visual>
+    <inertial>
+      <mass value="10"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="13.3333333333" ixy="0.0" ixz="0.0" iyy="0" iyz="0.0" izz="13.3333333333"/>
+    </inertial>
+  </link>
+  <link name="arm_three">
+    <visual>
+      <geometry>
+        <cylinder length="2" radius="0.1"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0.2 0 -1"/>
+      <material name="white"/>
+    </visual>
+    <inertial>
+      <mass value="10"/>
+      <origin xyz="0 0 0"/>
+      <inertia ixx="13.3333333333" ixy="0.0" ixz="0.0" iyy="0" iyz="0.0" izz="13.3333333333"/>
+    </inertial>
+  </link>
+  <joint name="base_to_arm" type="revolute">
+    <parent link="base_link"/>
+    <child link="arm_one"/>
+    <limit effort="100.0" lower="-1.57" upper="1.57" velocity="0.5"/>
+    <axis xyz="1 0 0"/>
+    <origin xyz="1.5 0 -0.25"/>
+  </joint>
+  <joint name="arm_one_to_two" type="revolute">
+    <parent link="arm_one"/>
+    <child link="arm_two"/>
+    <limit effort="100.0" lower="0" upper="3.14" velocity="0.5"/>
+    <axis xyz="0 1 0"/>
+    <origin xyz="0 0 0"/>
+  </joint>
+  <joint name="arm_two_to_three" type="revolute">
+    <parent link="arm_two"/>
+    <child link="arm_three"/>
+    <limit effort="100.0" lower="-1.57" upper="1.57" velocity="0.5"/>
+    <axis xyz="0 1 0"/>
+    <origin xyz="0 0 2"/>
   </joint>
 </robot>
 
