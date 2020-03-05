@@ -149,7 +149,6 @@ while True:
 
         s = time()
         for t in range(problem.T - 1):
-
             background.pose.position.y -= 0.01
             update_start = time()
             u = solution[t,:]
@@ -167,7 +166,6 @@ while True:
             publisher.publish(markerArray)
 
             # marker with overlay for satellite
-
             problem.get_scene().get_kinematic_tree().publish_frames()
             update_end = time()
             if problem.tau > update_end - update_start:
@@ -186,5 +184,3 @@ while True:
 
     except KeyboardInterrupt:
         break
-
-
