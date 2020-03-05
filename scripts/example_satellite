@@ -57,7 +57,8 @@ def create_marker(id, scale, pos, orientation, color, type, mesh="package://exot
 
 # ===================================================================
 
-solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.xml')
+# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.xml')
+solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.arm.xml')
 problem = solver.get_problem()
 solution = solver.solve()
 
