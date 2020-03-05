@@ -1,14 +1,17 @@
 <?xml version="1.0" ?>
 <PlannerDemoConfig>
-    <AnalyticDDPSolver Name="analytic_ddp">
+    <!-- <AnalyticDDPSolver Name="analytic_ddp">
         <Debug>1</Debug>
-        <MaxIterations>5</MaxIterations>
-        <!-- <FunctionTolerance>1e-12</FunctionTolerance> -->
-        <!-- <FunctionTolerancePatience>1000</FunctionTolerancePatience> -->
+        <MaxIterations>500</MaxIterations>
+        <FunctionTolerance>1e-12</FunctionTolerance>
         <UseSecondOrderDynamics>0</UseSecondOrderDynamics>
-        <!-- <RegularizationRate>0.01</RegularizationRate> -->
-        <!-- <ClampControlsInForwardPass>1</ClampControlsInForwardPass> -->
-    </AnalyticDDPSolver>
+        <ClampControlsInForwardPass>0</ClampControlsInForwardPass>
+    </AnalyticDDPSolver> -->
+
+    <FeasibilityDrivenDDPSolver Name="fddp">
+        <Debug>1</Debug>
+        <MaxIterations>100</MaxIterations>
+    </FeasibilityDrivenDDPSolver>
 
     <DynamicTimeIndexedShootingProblem Name="satellite">
         <PlanningScene>
@@ -19,8 +22,8 @@
                 <SetRobotDescriptionRosParams>1</SetRobotDescriptionRosParams>
                 <DynamicsSolver>
                     <SatelliteDynamicsSolver Name="dsolver" Integrator="RK1">
-                        <ControlLimitsLow>0</ControlLimitsLow>
-                        <ControlLimitsHigh>1000</ControlLimitsHigh>
+                        <ControlLimitsLow>0 0 0 0 0 0 0 0 0 0    -10 -10 -10</ControlLimitsLow>
+                        <ControlLimitsHigh>100 100 100 100 100 100 100 100 100 100  10 10 10</ControlLimitsHigh>
                         <dt>0.01</dt>
                     </SatelliteDynamicsSolver>
                 </DynamicsSolver>
@@ -30,10 +33,10 @@
         <T>300</T>
         <tau>0.01</tau>
 
-        <Q_rate>0</Q_rate>
+        <Q_rate>1</Q_rate>
         <Q>
-            0 0 0 0 0 0 0 0 0
-            1 1 1 1 1 1 1 1 1
+            0 0 0  0 0 0  0 0 0
+            1 1 1  1 1 1  1 1 1
 
         </Q>
         <Qf>
@@ -42,13 +45,12 @@
             1 1 1 1 1 1
         </Qf>
 
-        <Qf_rate>1000</Qf_rate>
+        <Qf_rate>100</Qf_rate>
 
         <!-- Rate penalizes large control forces. -->
-        <R_rate>1e-5</R_rate>
+        <R_rate>1e-3</R_rate>
 
-        <!-- <StartState>0 0 0    1 0 0 0    1.57 1.57 1.57   0 0 0 0 0 0    0 0 0</StartState> -->
-        <StartState>0 0 0    1 0 0 0    0 0 0   0 0 0 0 0 0    0 0 0</StartState>
-        <GoalState> 0 20 0   0 -0.4871745 0 -0.8733046   1.57 1.57 1.57   0 0 0 0 0 0   0 0 0</GoalState>
+        <StartState>0 0 0    1 0 0 0    0 0 0    0 0 0 0 0 0    0 0 0 </StartState>
+        <GoalState> 0 20 0   0 -0.4871745 0 -0.8733046   1.57 1.57 1.57    0 0 0 0 0 0   0 0 0 </GoalState>
     </DynamicTimeIndexedShootingProblem>
 </PlannerDemoConfig>
