@@ -75,8 +75,11 @@ private:
     Eigen::MatrixXd fx_analytic_;
     Eigen::MatrixXd fu_analytic_;
     Eigen::VectorXd xdot_analytic_;
+    Eigen::VectorXd tau_;  // Control vector
 
     // Thrusters
+    int num_thrusters_ = 10;
+    int num_aux_joints_ = 0;
     int top0_id_, top1_id_, top2_id_, top3_id_, top4_id_;
     int bot0_id_, bot1_id_, bot2_id_, bot3_id_, bot4_id_;
     Eigen::VectorXd f1_ = Eigen::VectorXd(6);
