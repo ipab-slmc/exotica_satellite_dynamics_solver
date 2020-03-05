@@ -84,8 +84,9 @@ private:
     Eigen::VectorXd f3_ = Eigen::VectorXd(6);
     Eigen::VectorXd f4_ = Eigen::VectorXd(6);
     Eigen::VectorXd f5_ = Eigen::VectorXd(6);
+    pinocchio::container::aligned_vector<pinocchio::Force> fext_;
 
-    pinocchio::container::aligned_vector<pinocchio::Force> GetExternalForceInputFromThrusters(const ControlVector& u);
+    void UpdateExternalForceInputFromThrusters(const ControlVector& u);
     StateVector SimulateOneStep(const StateVector& x, const ControlVector& u) override;
 };
 }  // namespace exotica
