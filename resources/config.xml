@@ -4,11 +4,6 @@
         <Debug>1</Debug>
         <MaxIterations>100</MaxIterations>
     </FeasibilityDrivenDDPSolver>
-    
-    <!-- <AnalyticDDPSolver Name="analytic_ddp">
-        <Debug>1</Debug>
-        <MaxIterations>100</MaxIterations>
-    </AnalyticDDPSolver> -->
 
     <DynamicTimeIndexedShootingProblem Name="satellite">
         <PlanningScene>
