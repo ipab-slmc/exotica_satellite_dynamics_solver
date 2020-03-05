@@ -4,7 +4,8 @@
   <version>0.0.1</version>
   <description>Dynamics solver plug-in using Satellite for Exotica</description>
 
-  <maintainer email="traiko.dinev@ed.ac.uk">Traiko dinev</maintainer>
+  <maintainer email="traiko.dinev@ed.ac.uk">Traiko Dinev</maintainer>
+  <maintainer email="wolfgang@robots.ox.ac.uk">Wolfgang Merkt</maintainer>
   <license>BSD</license>
 
   <buildtool_depend>catkin</buildtool_depend>
@@ -17,6 +18,7 @@
   <exec_depend>exotica_core</exec_depend>
   <exec_depend>roscpp</exec_depend>
   <exec_depend>pinocchio</exec_depend>
+  <depend>xacro</depend>
 
   <export>
     <exotica_core plugin="${prefix}/exotica_plugins.xml" />
