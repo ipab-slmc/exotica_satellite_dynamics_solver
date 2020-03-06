@@ -5,12 +5,12 @@
         <MaxIterations>500</MaxIterations>
         <FunctionTolerance>1e-12</FunctionTolerance>
         <UseSecondOrderDynamics>0</UseSecondOrderDynamics>
-        <ClampControlsInForwardPass>0</ClampControlsInForwardPass>
+        <ClampControlsInForwardPass>1</ClampControlsInForwardPass>
     </AnalyticDDPSolver> -->
 
     <FeasibilityDrivenDDPSolver Name="fddp">
         <Debug>1</Debug>
-        <MaxIterations>100</MaxIterations>
+        <MaxIterations>500</MaxIterations>
     </FeasibilityDrivenDDPSolver>
 
     <DynamicTimeIndexedShootingProblem Name="satellite">
@@ -22,16 +22,16 @@
                 <SetRobotDescriptionRosParams>1</SetRobotDescriptionRosParams>
                 <DynamicsSolver>
                     <SatelliteDynamicsSolver Name="dsolver" Integrator="RK1">
-                        <ControlLimitsLow>0 0 0 0 0 0 0 0 0 0    -10 -10 -10</ControlLimitsLow>
-                        <ControlLimitsHigh>100 100 100 100 100 100 100 100 100 100  10 10 10</ControlLimitsHigh>
-                        <dt>0.01</dt>
+                        <ControlLimitsLow>0 0 0 0 0 0 0 0 0 0    -1 -1 -1</ControlLimitsLow>
+                        <ControlLimitsHigh>10 10 10 10 10 10 10 10 10 10  1 1 1</ControlLimitsHigh>
+                        <dt>100</dt>
                     </SatelliteDynamicsSolver>
                 </DynamicsSolver>
             </Scene>
         </PlanningScene>
 
-        <T>300</T>
-        <tau>0.01</tau>
+        <T>100</T>
+        <tau>100</tau>
 
         <Q_rate>1</Q_rate>
         <Q>
@@ -45,12 +45,12 @@
             1 1 1 1 1 1
         </Qf>
 
-        <Qf_rate>100</Qf_rate>
+        <Qf_rate>10000</Qf_rate>
 
         <!-- Rate penalizes large control forces. -->
         <R_rate>1e-3</R_rate>
 
         <StartState>0 0 0    1 0 0 0    0 0 0    0 0 0 0 0 0    0 0 0 </StartState>
-        <GoalState> 0 20 0   0 -0.4871745 0 -0.8733046   1.57 1.57 1.57    0 0 0 0 0 0   0 0 0 </GoalState>
+        <GoalState> 0 20 0    0.924 0 0 0.383    0.5 1.57 1.57    0 0 0 0 0 0   0 0 0 </GoalState>
     </DynamicTimeIndexedShootingProblem>
 </PlannerDemoConfig>

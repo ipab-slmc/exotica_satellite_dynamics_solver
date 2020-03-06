@@ -172,9 +172,9 @@ while True:
             # marker with overlay for satellite
             problem.get_scene().get_kinematic_tree().publish_frames()
             update_end = time()
-            if problem.tau > update_end - update_start:
-                sleep(problem.tau - (update_end - update_start))
-                # sleep(0.1)
+            # if problem.tau > update_end - update_start:
+                # sleep(problem.tau - (update_end - update_start))
+            sleep(0.025)
         e = time()
         sleep(1)
         print("Time taken to roll-out:", e-s)
@@ -188,3 +188,12 @@ while True:
 
     except KeyboardInterrupt:
         break
+    # break
+
+# fig, ax = plt.subplots(5, 3)
+# ax = ax.flatten()
+
+# for i in range(solution.shape[1]):
+#     ax[i].plot(solution[:,i])
+
+# plt.show()
