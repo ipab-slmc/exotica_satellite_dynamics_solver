@@ -63,6 +63,7 @@ problem = solver.get_problem()
 solution = solver.solve()
 
 print('Solver terminated with: ', problem.termination_criterion)
+print('Solving took', solver.get_planning_time())
 
 costs = problem.get_cost_evolution()
 import matplotlib.pyplot as plt
@@ -72,7 +73,7 @@ plt.xlabel('Iteration')
 plt.ylabel('Cost')
 plt.yscale('log')
 plt.grid()
-# plt.show()
+plt.show()
 
 
 # visualization = exo.Visualization(problem.get_scene())
@@ -177,7 +178,7 @@ while True:
             sleep(0.025)
         e = time()
         sleep(1)
-        print("Time taken to roll-out:", e-s)
+        # print("Time taken to roll-out:", e-s)
         
         if not marker_array_published:
             markerArray.markers.append(traj_line)
