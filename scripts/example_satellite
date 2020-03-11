@@ -57,8 +57,9 @@ def create_marker(id, scale, pos, orientation, color, type, mesh="package://exot
 
 # ===================================================================
 
-solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.xml')
-# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.arm.xml')
+# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.xml')
+solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.arm.xml')
+# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.arm.taskmap.xml')
 problem = solver.get_problem()
 solution = solver.solve()
 
@@ -66,12 +67,12 @@ print('Solver terminated with: ', problem.termination_criterion)
 
 costs = problem.get_cost_evolution()
 import matplotlib.pyplot as plt
-# plt.figure()
-# plt.plot(range(len(costs[1])), costs[1])
-# plt.xlabel('Iteration')
-# plt.ylabel('Cost')
+plt.figure()
+plt.plot(range(len(costs[1])), costs[1])
+plt.xlabel('Iteration')
+plt.ylabel('Cost')
 # plt.yscale('log')
-# plt.grid()
+plt.grid()
 # plt.show()
 
 
