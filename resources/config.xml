@@ -1,36 +1,46 @@
 <?xml version="1.0" ?>
 <PlannerDemoConfig>    
-    <FeasibilityDrivenDDPSolver Name="fddp">
+    <!-- <ControlLimitedDDPSolver Name="ControlLimitedDDPSolver">
+        <Debug>1</Debug>
+        <UseSecondOrderDynamics>0</UseSecondOrderDynamics>
+        <MaxIterations>100</MaxIterations>
+    </ControlLimitedDDPSolver> -->
+
+    <SparseDDPSolver Name="sparse_ddp">
         <Debug>1</Debug>
         <MaxIterations>100</MaxIterations>
-    </FeasibilityDrivenDDPSolver>
-    
-    <!-- <AnalyticDDPSolver Name="analytic_ddp">
-        <Debug>1</Debug>
-        <MaxIterations>100</MaxIterations>
-    </AnalyticDDPSolver> -->
+        <FunctionTolerance>-1</FunctionTolerance>
+        <UseSecondOrderDynamics>0</UseSecondOrderDynamics>
+        <ClampControlsInForwardPass>1</ClampControlsInForwardPass>
+        <RegularizationRate>1e-3</RegularizationRate>
+
+        <L1Rate> 1 1 1 1 1 1 1 1 1 1 </L1Rate>
+        <!-- <L1Rate>  0   0   0   0   0   0   0   0   0   0    </L1Rate> -->
+        <L2Rate>  0   0   0   0   0   0   0   0   0   0    </L2Rate>
+        <L1IncreaseRate>1.5</L1IncreaseRate>
+    </SparseDDPSolver>
 
     <DynamicTimeIndexedShootingProblem Name="satellite">
         <PlanningScene>
             <Scene>
                 <JointGroup>base</JointGroup>
-                <URDF>{exotica_satellite_dynamics_solver}/resources/robots/satellite/satellite.urdf</URDF>
+                <URDF>{exotica_satellite_dynamics_solver}/resources/robots/satellite/satellite.noarm.urdf</URDF>
                 <SRDF>{exotica_satellite_dynamics_solver}/resources/robots/satellite/satellite.srdf</SRDF>
                 <SetRobotDescriptionRosParams>1</SetRobotDescriptionRosParams>
                 <DynamicsSolver>
                     <SatelliteDynamicsSolver Name="dsolver" Integrator="RK1">
                         <ControlLimitsLow>0</ControlLimitsLow>
-                        <ControlLimitsHigh>1000</ControlLimitsHigh>
-                        <dt>0.02</dt>
+                        <ControlLimitsHigh>100</ControlLimitsHigh>
+                        <dt>0.05</dt>
                     </SatelliteDynamicsSolver>
                 </DynamicsSolver>
             </Scene>
         </PlanningScene>
 
-        <T>200</T>
-        <tau>0.02</tau>
+        <T>100</T>
+        <tau>0.05</tau>
 
-        <Q_rate>1e-3</Q_rate>
+        <Q_rate>0</Q_rate>
         <Q>
             0 0 0 0 0 0
             1 1 1 1 1 1
@@ -40,12 +50,12 @@
             1 1 1 1 1 1
         </Qf>
 
-        <Qf_rate>1000</Qf_rate>
+        <Qf_rate>100</Qf_rate>
 
         <!-- Rate penalizes large control forces. -->
-        <R_rate>1e-3</R_rate>
+        <R_rate>0</R_rate>
 
         <StartState>0 0 0  1 0 0 0   0 0 0 0 0 0</StartState>
-        <GoalState> 0 20 0   0 -0.4871745 0 -0.8733046   0 0 0 0 0 0</GoalState>
+        <GoalState> 5 5 5  1 0 0 0   0 0 0 0 0 0</GoalState>
     </DynamicTimeIndexedShootingProblem>
 </PlannerDemoConfig>

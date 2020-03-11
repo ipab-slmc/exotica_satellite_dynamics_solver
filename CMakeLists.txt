@@ -4,6 +4,7 @@ project(exotica_satellite_dynamics_solver)
 find_package(catkin REQUIRED COMPONENTS
   exotica_core
   roscpp
+  xacro
 )
 
 find_package(PkgConfig REQUIRED)
@@ -15,9 +16,11 @@ GenInitializers()
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS exotica_core
+  CATKIN_DEPENDS exotica_core xacro
   DEPENDS PINOCCHIO
 )
+
+xacro_add_files(${CMAKE_CURRENT_SOURCE_DIR}/resources/robots/satellite/satellite.urdf.xacro INORDER INSTALL DESTINATION resources/robots/satellite)
 
 include_directories(
   include

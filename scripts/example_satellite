@@ -58,6 +58,7 @@ def create_marker(id, scale, pos, orientation, color, type, mesh="package://exot
 # ===================================================================
 
 solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.xml')
+# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.arm.xml')
 problem = solver.get_problem()
 solution = solver.solve()
 
@@ -65,12 +66,12 @@ print('Solver terminated with: ', problem.termination_criterion)
 
 costs = problem.get_cost_evolution()
 import matplotlib.pyplot as plt
-plt.figure()
-plt.plot(range(len(costs[1])), costs[1])
-plt.xlabel('Iteration')
-plt.ylabel('Cost')
-plt.yscale('log')
-plt.grid()
+# plt.figure()
+# plt.plot(range(len(costs[1])), costs[1])
+# plt.xlabel('Iteration')
+# plt.ylabel('Cost')
+# plt.yscale('log')
+# plt.grid()
 # plt.show()
 
 
@@ -140,6 +141,20 @@ background = create_marker(
     mesh="package://exotica_satellite_dynamics_solver/resources/robots/galaxy/background.dae"
 )
 
+fig, ax = plt.subplots(5, 3)
+ax = ax.flatten()
+
+times = [0]
+for i in range(problem.T - 1):
+    times.append(times[i - 1] + problem.tau)
+times = times[1:]
+
+for i in range(solution.shape[1]):
+    ax[i].plot(times, solution[:,i])
+    ax[i].set_xlabel('time (s.)')
+    ax[i].set_ylabel('u[{0}]'.format(i))
+
+plt.show()
 
 while True:
     try:
@@ -152,6 +167,9 @@ while True:
             background.pose.position.y -= 0.01
             update_start = time()
             u = solution[t,:]
+
+            # u = [100, 0, 0,  0, 0, 0,  0, 0, 0, 0,    10, 0, 0]
+            # print(u, t)
             problem.update(u, t)
 
             # print(problem.X[:,t])
@@ -168,19 +186,20 @@ while True:
             # marker with overlay for satellite
             problem.get_scene().get_kinematic_tree().publish_frames()
             update_end = time()
-            if problem.tau > update_end - update_start:
-                sleep(problem.tau - (update_end - update_start))
-                # sleep(0.1)
+            # if problem.tau > update_end - update_start:
+                # sleep(problem.tau - (update_end - update_start))
+            sleep(0.025)
         e = time()
         sleep(1)
         print("Time taken to roll-out:", e-s)
         
         if not marker_array_published:
             markerArray.markers.append(traj_line)
-            markerArray.markers.append(start_marker)
-            markerArray.markers.append(end_marker)
-            markerArray.markers.append(background)
+            # markerArray.markers.append(start_marker)
+            # markerArray.markers.append(end_marker)
+            # markerArray.markers.append(background)
             marker_array_published = True
 
     except KeyboardInterrupt:
         break
+    # break
