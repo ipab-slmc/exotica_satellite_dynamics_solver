@@ -57,23 +57,22 @@ def create_marker(id, scale, pos, orientation, color, type, mesh="package://exot
 
 # ===================================================================
 
-# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.xml')
-solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.arm.xml')
+solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.xml')
+# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.arm.xml')
 problem = solver.get_problem()
 solution = solver.solve()
 
 print('Solver terminated with: ', problem.termination_criterion)
-print('Solving took', solver.get_planning_time())
 
 costs = problem.get_cost_evolution()
 import matplotlib.pyplot as plt
-plt.figure()
-plt.plot(range(len(costs[1])), costs[1])
-plt.xlabel('Iteration')
-plt.ylabel('Cost')
-plt.yscale('log')
-plt.grid()
-plt.show()
+# plt.figure()
+# plt.plot(range(len(costs[1])), costs[1])
+# plt.xlabel('Iteration')
+# plt.ylabel('Cost')
+# plt.yscale('log')
+# plt.grid()
+# plt.show()
 
 
 # visualization = exo.Visualization(problem.get_scene())
@@ -142,6 +141,20 @@ background = create_marker(
     mesh="package://exotica_satellite_dynamics_solver/resources/robots/galaxy/background.dae"
 )
 
+fig, ax = plt.subplots(5, 3)
+ax = ax.flatten()
+
+times = [0]
+for i in range(problem.T - 1):
+    times.append(times[i - 1] + problem.tau)
+times = times[1:]
+
+for i in range(solution.shape[1]):
+    ax[i].plot(times, solution[:,i])
+    ax[i].set_xlabel('time (s.)')
+    ax[i].set_ylabel('u[{0}]'.format(i))
+
+plt.show()
 
 while True:
     try:
@@ -178,7 +191,7 @@ while True:
             sleep(0.025)
         e = time()
         sleep(1)
-        # print("Time taken to roll-out:", e-s)
+        print("Time taken to roll-out:", e-s)
         
         if not marker_array_published:
             markerArray.markers.append(traj_line)
@@ -190,11 +203,3 @@ while True:
     except KeyboardInterrupt:
         break
     # break
-
-# fig, ax = plt.subplots(5, 3)
-# ax = ax.flatten()
-
-# for i in range(solution.shape[1]):
-#     ax[i].plot(solution[:,i])
-
-# plt.show()

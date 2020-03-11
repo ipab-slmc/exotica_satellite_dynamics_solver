@@ -17,13 +17,13 @@
         <color rgba="1 1 1 1"/>
     </material>
 
-    <xacro:property name="base_mass" value="60" />
+    <xacro:property name="base_mass" value="100" />
     <xacro:property name="base_w" value="2" />
     <xacro:property name="base_l" value="2" />
     <xacro:property name="base_h" value="4" />
     <xacro:property name="arm_segment_length" value="2" />
     <xacro:property name="arm_segment_mass" value="1" />
-    <xacro:property name="show_outline" value="0" />
+    <xacro:property name="show_outline" value="1" />
 
     <!-- <link name="base_dummy"></link> -->
 
@@ -35,15 +35,15 @@
             <inertia ixx="${base_mass * 2.5 * 2.5 * 2/5}" ixy="0.0" ixz="0.0" iyy="${base_mass * 2.5 * 2.5 * 2/5}" iyz="0.0" izz="${base_mass * 4 * 4 * 2/5}" />
         </inertial>
 
-        <visual>
+        <!-- <visual>
             <origin rpy="0 0 0" xyz="0 0 0"/>
             <geometry>
 
                 <mesh filename="package://exotica_satellite_dynamics_solver/resources/robots/satellite/satellite_base.dae" scale="1 1 1"/>
             </geometry>
-        </visual>
+        </visual> -->
 
-        <xacro:if value="${show_outline}">
+        <xacro:if value="${show_outline == 1}">
             <visual>
                 <geometry>
                     <box size="2.5 2.5 4"/>
@@ -67,7 +67,7 @@
 
     <!-- antenna and communication arrays -->
     <link name="front">
-        <xacro:if value="${show_outline}">
+        <!-- <xacro:if value="${show_outline == 1}">
             <visual>
                 <geometry>
                     <cylinder length="4" radius="1"/>
@@ -76,7 +76,7 @@
                 <origin rpy="0 0 0" xyz="0 0 2"/>
                 <material name="black"/>
             </visual>
-        </xacro:if>
+        </xacro:if> -->
 
         <inertial>
             <mass value="1e-12"/>
@@ -120,7 +120,7 @@
     </link> -->
 
     <link name="top_array">
-        <xacro:if value="${show_outline}">
+        <!-- <xacro:if value="${show_outline == 1}">
             <visual>
                 <geometry>
                     <box size="2 4 0.2"/>
@@ -129,7 +129,7 @@
                 <origin rpy="0 0 0" xyz="0 2 0"/>
                 <material name="black"/>
             </visual>
-        </xacro:if>
+        </xacro:if> -->
 
         <inertial>
             <mass value="1e-12"/>
@@ -139,7 +139,7 @@
     </link>
 
     <link name="bot_array">
-        <xacro:if value="${show_outline}">
+        <!-- <xacro:if value="${show_outline == 1}">
             <visual>
                 <geometry>
                     <box size="2 4 0.2"/>
@@ -148,7 +148,7 @@
                 <origin rpy="0 0 0" xyz="0 -2 0"/>
                 <material name="black"/>
             </visual>
-        </xacro:if>
+        </xacro:if> -->
 
         <inertial>
             <mass value="1e-12"/>
@@ -312,7 +312,7 @@
 
         <limit effort="1.0" lower="-1.57" upper="1.57" velocity="0.5"/>
         <axis xyz="1 0 0"/>
-        <origin xyz="1.5 0 -0.25"/>
+        <origin xyz="1.25 0 -1"/>
     </joint>
 
 
