@@ -63,6 +63,7 @@ solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/co
 problem = solver.get_problem()
 solution = solver.solve()
 
+print('Solver took', solver.get_planning_time())
 print('Solver terminated with: ', problem.termination_criterion)
 
 costs = problem.get_cost_evolution()
