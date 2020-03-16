@@ -20,6 +20,9 @@
   <exec_depend>pinocchio</exec_depend>
   <depend>xacro</depend>
 
+  <build_depend>rostest</build_depend>
+  <test_depend>rosunit</test_depend>
+
   <export>
     <exotica_core plugin="${prefix}/exotica_plugins.xml" />
   </export>
