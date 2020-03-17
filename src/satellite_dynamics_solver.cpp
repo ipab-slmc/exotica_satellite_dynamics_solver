@@ -87,6 +87,35 @@ void SatelliteDynamicsSolver::AssignScene(ScenePtr scene_in)
 
     // Instantiate vector of external forces
     fext_.assign(model_.njoints, pinocchio::Force::Zero());
+    daba_dfext_.setZero(model_.nv, num_controls_);
+
+    // Set up derivative of external forces
+    auto bot0 = model_.frames[bot0_id_].placement.toDualActionMatrix(),
+         bot1 = model_.frames[bot1_id_].placement.toDualActionMatrix(),
+         bot2 = model_.frames[bot2_id_].placement.toDualActionMatrix(),
+         bot3 = model_.frames[bot3_id_].placement.toDualActionMatrix(),
+         bot4 = model_.frames[bot4_id_].placement.toDualActionMatrix();
+
+    auto top0 = model_.frames[top0_id_].placement.toDualActionMatrix(),
+         top1 = model_.frames[top1_id_].placement.toDualActionMatrix(),
+         top2 = model_.frames[top2_id_].placement.toDualActionMatrix(),
+         top3 = model_.frames[top3_id_].placement.toDualActionMatrix(),
+         top4 = model_.frames[top4_id_].placement.toDualActionMatrix();
+
+    daba_dfext_.block(0, 0, 6, 1) = bot0 * f1_;
+    daba_dfext_.block(0, 1, 6, 1) = bot1 * f2_;
+    daba_dfext_.block(0, 2, 6, 1) = bot2 * f3_;
+    daba_dfext_.block(0, 3, 6, 1) = bot3 * f4_;
+    daba_dfext_.block(0, 4, 6, 1) = bot4 * f5_;
+    daba_dfext_.block(0, 5, 6, 1) = -top0 * f1_;
+    daba_dfext_.block(0, 6, 6, 1) = top1 * f2_;
+    daba_dfext_.block(0, 7, 6, 1) = top2 * f3_;
+    daba_dfext_.block(0, 8, 6, 1) = top3 * f4_;
+    daba_dfext_.block(0, 9, 6, 1) = top4 * f5_;
+
+    // Set up derivative of actuated joints
+    dtau_du_.setZero(model_.nv, num_controls_);
+    dtau_du_.block(6, num_thrusters_, num_aux_joints_, num_aux_joints_).setIdentity();
 }
 
 void SatelliteDynamicsSolver::UpdateExternalForceInputFromThrusters(const ControlVector& u)
@@ -115,38 +144,6 @@ void SatelliteDynamicsSolver::UpdateExternalForceInputFromThrusters(const Contro
                                 top2.act(pinocchio::Force(f3_ * u(7))) +
                                 top3.act(pinocchio::Force(f4_ * u(8))) +
                                 top4.act(pinocchio::Force(f5_ * u(9))));
-}
-
-Eigen::MatrixXd SatelliteDynamicsSolver::GetExternalForceInputFromThrustersDerivative(const ControlVector& u)
-{
-    // Non-actuated joints
-    // Eigen::MatrixXd daba_dfext = Eigen::MatrixXd::Zero(model_.nv, num_controls_);
-    Eigen::MatrixXd daba_dfext = Eigen::MatrixXd::Zero(model_.nv, num_thrusters_);
-
-    auto bot0 = model_.frames[bot0_id_].placement.toDualActionMatrix(),
-         bot1 = model_.frames[bot1_id_].placement.toDualActionMatrix(),
-         bot2 = model_.frames[bot2_id_].placement.toDualActionMatrix(),
-         bot3 = model_.frames[bot3_id_].placement.toDualActionMatrix(),
-         bot4 = model_.frames[bot4_id_].placement.toDualActionMatrix();
-
-    auto top0 = model_.frames[top0_id_].placement.toDualActionMatrix(),
-         top1 = model_.frames[top1_id_].placement.toDualActionMatrix(),
-         top2 = model_.frames[top2_id_].placement.toDualActionMatrix(),
-         top3 = model_.frames[top3_id_].placement.toDualActionMatrix(),
-         top4 = model_.frames[top4_id_].placement.toDualActionMatrix();
-
-    daba_dfext.block(0, 0, 6, 1) = bot0 * f1_;
-    daba_dfext.block(0, 1, 6, 1) = bot1 * f2_;
-    daba_dfext.block(0, 2, 6, 1) = bot2 * f3_;
-    daba_dfext.block(0, 3, 6, 1) = bot3 * f4_;
-    daba_dfext.block(0, 4, 6, 1) = bot4 * f5_;
-    daba_dfext.block(0, 5, 6, 1) = -top0 * f1_;
-    daba_dfext.block(0, 6, 6, 1) = top1 * f2_;
-    daba_dfext.block(0, 7, 6, 1) = top2 * f3_;
-    daba_dfext.block(0, 8, 6, 1) = top3 * f4_;
-    daba_dfext.block(0, 9, 6, 1) = top4 * f5_;
-
-    return daba_dfext;
 }
 
 Eigen::VectorXd SatelliteDynamicsSolver::f(const StateVector& x, const ControlVector& u)
@@ -221,28 +218,18 @@ Eigen::MatrixXd SatelliteDynamicsSolver::fx(const StateVector& x, const ControlV
 
 Eigen::MatrixXd SatelliteDynamicsSolver::fu(const StateVector& x, const ControlVector& u)
 {
-    const int NV = num_velocities_;
-
     UpdateExternalForceInputFromThrusters(u.head(num_thrusters_));
     pinocchio::computeABADerivatives(model_, *pinocchio_data_, x.head(num_positions_), x.tail(num_velocities_), tau_, fext_);
-
-    fu_.bottomRows(NV).setZero();
 
     // da/du = daba/dtau * dtau/du + daba/dfext * dfext/du
     //       = M^-1      * dtau/du + M^-1 J^T   * dfext/du
 
+    fu_.bottomRows(num_velocities_).setZero();
     // The arm, if any:
-    const Eigen::MatrixXd& daba_dtau = pinocchio_data_->Minv;
-    Eigen::MatrixXd dtau_du = Eigen::MatrixXd::Zero(model_.nv, num_controls_);
-    dtau_du.bottomRightCorner(num_aux_joints_, num_aux_joints_).setIdentity();
-    fu_.bottomRows(NV).noalias() += daba_dtau * dtau_du;
+    fu_.bottomRows(num_velocities_).noalias() += pinocchio_data_->Minv * dtau_du_;
 
     // The thrusters:
-    auto daba_dfext = GetExternalForceInputFromThrustersDerivative(u.head(num_thrusters_));
-    fu_.bottomRows(NV).noalias() += pinocchio_data_->Minv * daba_dfext;
-
-    // Check with finite diff
-    auto fu_finite_diff = fu_fd(x, u);
+    fu_.bottomRows(num_velocities_).noalias() += pinocchio_data_->Minv * daba_dfext_;
 
     return fu_;
 }
