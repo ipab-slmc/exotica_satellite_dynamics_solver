@@ -120,19 +120,20 @@ void SatelliteDynamicsSolver::UpdateExternalForceInputFromThrusters(const Contro
 Eigen::MatrixXd SatelliteDynamicsSolver::GetExternalForceInputFromThrustersDerivative(const ControlVector& u)
 {
     // Non-actuated joints
-    Eigen::MatrixXd daba_dfext = Eigen::MatrixXd::Zero(model_.nv, num_controls_);
+    // Eigen::MatrixXd daba_dfext = Eigen::MatrixXd::Zero(model_.nv, num_controls_);
+    Eigen::MatrixXd daba_dfext = Eigen::MatrixXd::Zero(model_.nv, num_thrusters_);
 
-    auto bot0 = model_.frames[bot0_id_].placement.inverse().toActionMatrix(),
-         bot1 = model_.frames[bot1_id_].placement.inverse().toActionMatrix(),
-         bot2 = model_.frames[bot2_id_].placement.inverse().toActionMatrix(),
-         bot3 = model_.frames[bot3_id_].placement.inverse().toActionMatrix(),
-         bot4 = model_.frames[bot4_id_].placement.inverse().toActionMatrix();
+    auto bot0 = model_.frames[bot0_id_].placement.toDualActionMatrix(),
+         bot1 = model_.frames[bot1_id_].placement.toDualActionMatrix(),
+         bot2 = model_.frames[bot2_id_].placement.toDualActionMatrix(),
+         bot3 = model_.frames[bot3_id_].placement.toDualActionMatrix(),
+         bot4 = model_.frames[bot4_id_].placement.toDualActionMatrix();
 
-    auto top0 = model_.frames[top0_id_].placement.inverse().toActionMatrix(),
-         top1 = model_.frames[top1_id_].placement.inverse().toActionMatrix(),
-         top2 = model_.frames[top2_id_].placement.inverse().toActionMatrix(),
-         top3 = model_.frames[top3_id_].placement.inverse().toActionMatrix(),
-         top4 = model_.frames[top4_id_].placement.inverse().toActionMatrix();
+    auto top0 = model_.frames[top0_id_].placement.toDualActionMatrix(),
+         top1 = model_.frames[top1_id_].placement.toDualActionMatrix(),
+         top2 = model_.frames[top2_id_].placement.toDualActionMatrix(),
+         top3 = model_.frames[top3_id_].placement.toDualActionMatrix(),
+         top4 = model_.frames[top4_id_].placement.toDualActionMatrix();
 
     daba_dfext.block(0, 0, 6, 1) = bot0 * f1_;
     daba_dfext.block(0, 1, 6, 1) = bot1 * f2_;
@@ -175,7 +176,7 @@ Eigen::VectorXd SatelliteDynamicsSolver::StateDelta(const StateVector& x_1, cons
 {
     if (x_1.size() != num_positions_ + num_velocities_ || x_2.size() != num_positions_ + num_velocities_)
     {
-        ThrowPretty("x_1 or x_2 do not have correct size.");
+        ThrowPretty("x_1 or x_2 do not have correct size, x1=" << x_1.size() << " x2=" << x_2.size() << " expected " << num_positions_ + num_velocities_);
     }
 
     Eigen::VectorXd dx(2 * num_velocities_);
@@ -233,7 +234,7 @@ Eigen::MatrixXd SatelliteDynamicsSolver::fu(const StateVector& x, const ControlV
     // The arm, if any:
     const Eigen::MatrixXd& daba_dtau = pinocchio_data_->Minv;
     Eigen::MatrixXd dtau_du = Eigen::MatrixXd::Zero(model_.nv, num_controls_);
-    dtau_du.block(6, num_thrusters_, num_aux_joints_, num_aux_joints_).setIdentity();
+    dtau_du.bottomRightCorner(num_aux_joints_, num_aux_joints_).setIdentity();
     fu_.bottomRows(NV).noalias() += daba_dtau * dtau_du;
 
     // The thrusters:
@@ -242,7 +243,6 @@ Eigen::MatrixXd SatelliteDynamicsSolver::fu(const StateVector& x, const ControlV
 
     // Check with finite diff
     auto fu_finite_diff = fu_fd(x, u);
-    WARNING_NAMED("diff: \n", fu_finite_diff - fu_);
 
     return fu_;
 }
