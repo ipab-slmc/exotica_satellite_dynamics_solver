@@ -219,6 +219,8 @@ Eigen::MatrixXd SatelliteDynamicsSolver::fx(const StateVector& x, const ControlV
 Eigen::MatrixXd SatelliteDynamicsSolver::fu(const StateVector& x, const ControlVector& u)
 {
     UpdateExternalForceInputFromThrusters(u.head(num_thrusters_));
+    tau_.tail(num_aux_joints_) = u.segment(num_thrusters_, num_aux_joints_);
+
     pinocchio::computeABADerivatives(model_, *pinocchio_data_, x.head(num_positions_), x.tail(num_velocities_), tau_, fext_);
 
     // da/du = daba/dtau * dtau/du + daba/dfext * dfext/du
@@ -232,5 +234,30 @@ Eigen::MatrixXd SatelliteDynamicsSolver::fu(const StateVector& x, const ControlV
     fu_.bottomRows(num_velocities_).noalias() += pinocchio_data_->Minv * daba_dfext_;
 
     return fu_;
+}
+
+void SatelliteDynamicsSolver::ComputeDerivatives(const StateVector& x, const ControlVector& u)
+{
+    UpdateExternalForceInputFromThrusters(u.head(num_thrusters_));
+    tau_.tail(num_aux_joints_) = u.segment(num_thrusters_, num_aux_joints_);
+
+    // Four quadrants should be: 0, Identity, ddq_dq, ddq_dv
+    // 0 and Identity are set during initialisation. Here, we pass references to ddq_dq, ddq_dv to the algorithm.
+    pinocchio::computeABADerivatives(model_, *pinocchio_data_,
+                                     x.head(num_positions_),
+                                     x.tail(num_velocities_),
+                                     tau_,
+                                     fext_,
+                                     fx_.block(num_velocities_, 0, num_velocities_, num_velocities_),
+                                     fx_.block(num_velocities_, num_velocities_, num_velocities_, num_velocities_),
+                                     Minv_);
+
+    fu_.bottomRows(num_velocities_).setZero();
+
+    // The arm, if any:
+    fu_.bottomRows(num_velocities_).noalias() += Minv_ * dtau_du_;
+
+    // The thrusters:
+    fu_.bottomRows(num_velocities_).noalias() += Minv_ * daba_dfext_;
 }
 }  // namespace exotica
