@@ -3,37 +3,19 @@
 
     <SparseFDDPSolver Name="sparse_ddp">
         <Debug>1</Debug>
-        <MaxIterations>1000</MaxIterations>
+        <MaxIterations>3000</MaxIterations>
         <FunctionTolerance>1e-3</FunctionTolerance>
         <UseSecondOrderDynamics>0</UseSecondOrderDynamics>
-        <ClampControlsInForwardPass>0</ClampControlsInForwardPass>
+        <ClampControlsInForwardPass>1</ClampControlsInForwardPass>
         <!-- <RegularizationRate>1e-3</RegularizationRate> -->
 
         <!-- <L1Rate> 1 1 1 1 1 1 1 1 1 1  0 0 0</L1Rate> -->
+        <HuberRate> 1 1 1 1 1 1 1 1 1 1  1 1 1</HuberRate>
         <L1Rate>  0   0   0   0   0   0   0   0   0   0    0 0 0</L1Rate>
-        <!-- <L2Rate>  0   0   0   0   0   0   0   0   0   0    1 1 1</L2Rate> -->
         <L2Rate>  0   0   0   0   0   0   0   0   0   0    0 0 0</L2Rate>
         <L1IncreaseRate>1.5</L1IncreaseRate>
+        <LossType>Huber</LossType>
     </SparseFDDPSolver>
-
-    <!-- <ControlLimitedDDPSolver Name="ControlLimitedDDPSolver">
-        <Debug>1</Debug>
-        <UseSecondOrderDynamics>0</UseSecondOrderDynamics>
-        <MaxIterations>100</MaxIterations>
-    </ControlLimitedDDPSolver> -->
-
-    <!-- <AnalyticDDPSolver Name="analytic_ddp">
-        <Debug>1</Debug>
-        <MaxIterations>300</MaxIterations>
-        <FunctionTolerance>1002</FunctionTolerance>
-        <UseSecondOrderDynamics>0</UseSecondOrderDynamics>
-        <ClampControlsInForwardPass>1</ClampControlsInForwardPass>
-    </AnalyticDDPSolver> -->
-
-    <!-- <FeasibilityDrivenDDPSolver Name="fddp">
-        <Debug>1</Debug>
-        <MaxIterations>10000</MaxIterations>
-    </FeasibilityDrivenDDPSolver> -->
 
     <DynamicTimeIndexedShootingProblem Name="satellite">
         <PlanningScene>
@@ -64,21 +46,21 @@
         </Maps>
 
         <Cost>
-            <Task Task="Position" Goal="10 0 0" Rho="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 10.0"/>
+            <Task Task="Position" Goal="5 5 5" Rho="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 10.0"/>
         </Cost>
 
 
         <T>150</T>
         <tau>0.05</tau>
 
-        <Q_rate>0</Q_rate>
+        <Q_rate>1</Q_rate>
         <Q>
             0 0 0  0 0 0  0 0 0
             0 0 0  1 1 1  1 1 1
 
         </Q>
         <Qf>
-            0 0 0  0 0 0    0 0 0
+            1 1 1  0 0 0    0 0 0
             
             1 1 1  1 1 1    1 1 1
         </Qf>
@@ -91,6 +73,6 @@
 
         <StartState>0 0 0    1 0 0 0    0 0 0             0 0 0   0 0 0    0 0 0 </StartState>
         <!-- <GoalState> 5 5 5    0.924 0 0 0.383    0.5 1.57 -1.57    0 0 0 0 0 0   0 0 0 </GoalState> -->
-        <GoalState> 6 0 0    1 0 0 0    0.5 1.57 -1.57    0 0 0   0 0 0   0 0 0 </GoalState>
+        <GoalState> 3 3 3    1 0 0 0    0.5 1.57 -1.57    0 0 0   0 0 0   0 0 0 </GoalState>
     </DynamicTimeIndexedShootingProblem>
 </PlannerDemoConfig>

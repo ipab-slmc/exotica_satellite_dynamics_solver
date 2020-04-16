@@ -21,10 +21,10 @@
         <color rgba="1 1 1 1"/>
     </material>
 
-    <xacro:property name="base_mass" value="100" />
-    <xacro:property name="base_w" value="2" />
-    <xacro:property name="base_l" value="2" />
-    <xacro:property name="base_h" value="4" />
+    <xacro:property name="base_mass" value="11900" />
+    <xacro:property name="base_w" value="4" />
+    <xacro:property name="base_l" value="4" />
+    <xacro:property name="base_h" value="11" />
     <xacro:property name="arm_segment_length" value="2" />
     <xacro:property name="arm_segment_mass" value="1" />
     <xacro:property name="show_outline" value="1" />

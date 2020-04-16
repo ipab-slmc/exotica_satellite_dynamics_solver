@@ -1,28 +1,32 @@
 <?xml version="1.0" ?>
 <PlannerDemoConfig>    
-    <!-- <ControlLimitedDDPSolver Name="ControlLimitedDDPSolver">
-        <Debug>1</Debug>
-        <UseSecondOrderDynamics>0</UseSecondOrderDynamics>
-        <MaxIterations>100</MaxIterations>
-    </ControlLimitedDDPSolver> -->
-
-    <SparseFDDPSolver Name="sparse_ddp">
+    <ControlLimitedFeasibilityDrivenDDPSolver Name="BoxFDDP">
         <Debug>1</Debug>
         <MaxIterations>100</MaxIterations>
-        <FunctionTolerance>-1</FunctionTolerance>
-        <UseSecondOrderDynamics>0</UseSecondOrderDynamics>
+        <FunctionTolerance>1e-10</FunctionTolerance>
         <ClampControlsInForwardPass>1</ClampControlsInForwardPass>
-        <RegularizationRate>1e-3</RegularizationRate>
-
-        <L1Rate> 1 1 1 1 1 1 1 1 1 1 </L1Rate>
-        <HuberRate> 1 1 1 1 1 1 1 1 1 1 </HuberRate>
-        <!-- <L1Rate>  0   0   0   0   0   0   0   0   0   0    </L1Rate> -->
-        <L2Rate>  0   0   0   0   0   0   0   0   0   0    </L2Rate>
-        <L1IncreaseRate>1.5</L1IncreaseRate>
-        <LossType>Huber</LossType>
-    </SparseFDDPSolver>
-
+    </ControlLimitedFeasibilityDrivenDDPSolver>
+    
     <DynamicTimeIndexedShootingProblem Name="satellite">
+        <!-- <LossType>L2</LossType>
+        <L2Rate>0</L2Rate> -->
+
+        <LossType>Huber</LossType>
+        <HuberRate>0.1</HuberRate>
+
+        <!-- <LossType>BiModalHuber</LossType>
+        <Mode1>    0</Mode1>
+        <Mode2>   50</Mode2> -->
+    
+        <!-- <LossType>SmoothL1</LossType> -->
+        <!-- <L1Rate>1e-3</L1Rate>
+        <L1IncreaseRate>1.05</L1IncreaseRate>
+        <MaxL1Rate>1e3</MaxL1Rate> -->
+
+        <!-- <LossType>L2</LossType>        
+        <R_rate>1e-5</R_rate> -->
+
+
         <PlanningScene>
             <Scene>
                 <JointGroup>base</JointGroup>
@@ -31,21 +35,21 @@
                 <SetRobotDescriptionRosParams>1</SetRobotDescriptionRosParams>
                 <DynamicsSolver>
                     <SatelliteDynamicsSolver Name="dsolver" Integrator="RK1">
-                        <ControlLimitsLow>0</ControlLimitsLow>
-                        <ControlLimitsHigh>100</ControlLimitsHigh>
-                        <dt>0.05</dt>
+                        <ControlLimitsLow>  0</ControlLimitsLow>
+                        <ControlLimitsHigh> 440</ControlLimitsHigh>
+                        <dt>0.1</dt>
                     </SatelliteDynamicsSolver>
                 </DynamicsSolver>
             </Scene>
         </PlanningScene>
 
-        <T>100</T>
-        <tau>0.05</tau>
+        <T>1000</T>
+        <tau>0.1</tau>
 
         <Q_rate>0</Q_rate>
         <Q>
             0 0 0 0 0 0
-            1 1 1 1 1 1
+            0 0 0 1 1 1
         </Q>
         <Qf>
             1 1 1 1 1 1
@@ -54,10 +58,10 @@
 
         <Qf_rate>100</Qf_rate>
 
-        <!-- Rate penalizes large control forces. -->
-        <R_rate>0</R_rate>
 
-        <StartState>0 0 0  1 0 0 0   0 0 0 0 0 0</StartState>
-        <GoalState> 5 5 5  1 0 0 0   0 0 0 0 0 0</GoalState>
+        <StartState> 0 0 0     0 0 0 1    0 0 0    0 0 0    </StartState>
+        <GoalState>  5 5 5     0 0 0 1    0 0 0    0 0 0    </GoalState>
+        <!-- <StartState>  0 0 0    0 0.7071068 0 0.7071068   0 0 0    0 0 0    </StartState> -->
+        <!-- <GoalState>   5 5 5    0 0.7071068 0 0.7071068   0 0 0    0 0 0    </GoalState> -->
     </DynamicTimeIndexedShootingProblem>
 </PlannerDemoConfig>
