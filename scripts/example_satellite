@@ -163,7 +163,9 @@ for i in range(solution.shape[1]):
     ax[i].plot(times, solution[:,i])
     ax[i].set_xlabel('time (s.)')
     ax[i].set_ylabel('u[{0}]'.format(i))
-    ax[i].set_ylim(0, 440)
+    
+    # if i < 10:
+        # ax[i].set_ylim(0, 440)
 
 plt.show()
 
