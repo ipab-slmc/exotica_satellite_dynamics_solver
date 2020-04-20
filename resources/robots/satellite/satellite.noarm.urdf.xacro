@@ -21,7 +21,7 @@
         <color rgba="1 1 1 1"/>
     </material>
 
-    <xacro:property name="base_mass" value="11900" />
+    <xacro:property name="base_mass" value="5190" />
     <xacro:property name="base_w" value="4" />
     <xacro:property name="base_l" value="4" />
     <xacro:property name="base_h" value="11" />

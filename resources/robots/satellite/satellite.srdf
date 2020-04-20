@@ -10,8 +10,9 @@
     <group name="base_with_arm">
         <joint name="world_joint"/>
         <joint name="base_to_arm"/>
-        <joint name="arm_one_to_two"/>
-        <joint name="arm_two_to_three"/>
+        <joint name="arm_base_to_shoulder"/>
+        <joint name="arm_shoulder_to_elbow"/>
+        <joint name="arm_elbow_to_wrist"/>
     </group>
     <!-- <virtual_joint name="world_joint" type="floating" parent_frame="world_frame" child_link="base_dummy" /> -->
     <virtual_joint name="world_joint" type="floating" parent_frame="world_frame" child_link="base_link" />

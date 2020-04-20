@@ -1,43 +1,21 @@
-<?xml version="1" ?>
-<PlannerDemoConfig>
-
-    <SparseFDDPSolver Name="sparse_ddp">
+<?xml version="1.0" ?>
+<PlannerDemoConfig>    
+    <FeasibilityDrivenDDPSolver Name="FDDP">
         <Debug>1</Debug>
         <MaxIterations>100</MaxIterations>
-        <FunctionTolerance>1e-4</FunctionTolerance>
-        <FunctionTolerancePatience>10</FunctionTolerancePatience>
-        <UseSecondOrderDynamics>0</UseSecondOrderDynamics>
+        <FunctionTolerance>1e-10</FunctionTolerance>
         <ClampControlsInForwardPass>1</ClampControlsInForwardPass>
-        <RegularizationRate>1e-3</RegularizationRate>
-
-        <L1Rate> 1 1 1 1 1 1 1 1 1 1  0 0 0</L1Rate>
-        
-        <HuberRate> 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0    1 1 1</HuberRate>
-        <!-- <L1Rate>  0   0   0   0   0   0   0   0   0   0    0 0 0</L1Rate> -->
-        <L1IncreaseRate>1.5</L1IncreaseRate>
-        <LossType>Huber</LossType>
-    </SparseFDDPSolver>
-
-    <!-- <ControlLimitedDDPSolver Name="ControlLimitedDDPSolver">
-        <Debug>1</Debug>
-        <UseSecondOrderDynamics>0</UseSecondOrderDynamics>
-        <MaxIterations>100</MaxIterations>
-    </ControlLimitedDDPSolver> -->
-
-    <!-- <AnalyticDDPSolver Name="analytic_ddp">
-        <Debug>1</Debug>
-        <MaxIterations>300</MaxIterations>
-        <FunctionTolerance>1002</FunctionTolerance>
-        <UseSecondOrderDynamics>0</UseSecondOrderDynamics>
-        <ClampControlsInForwardPass>1</ClampControlsInForwardPass>
-    </AnalyticDDPSolver> -->
-
-    <!-- <FeasibilityDrivenDDPSolver Name="fddp">
-        <Debug>1</Debug>
-        <MaxIterations>500</MaxIterations>
-    </FeasibilityDrivenDDPSolver> -->
-
+    </FeasibilityDrivenDDPSolver>
+    
     <DynamicTimeIndexedShootingProblem Name="satellite">
+        <!-- Huber for the thrusters -->
+        <!-- <HuberRate>0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1     0   0   0</HuberRate>     -->
+
+
+        <LossType>L2</LossType>
+        <R_rate>1e-4</R_rate>
+        <ControlCostWeight>1</ControlCostWeight>
+
         <PlanningScene>
             <Scene>
                 <JointGroup>base_with_arm</JointGroup>
@@ -46,37 +24,39 @@
                 <SetRobotDescriptionRosParams>1</SetRobotDescriptionRosParams>
                 <DynamicsSolver>
                     <SatelliteDynamicsSolver Name="dsolver" Integrator="RK1">
-                        <ControlLimitsLow>0 0 0 0 0 0 0 0 0 0    -5 -5 -5</ControlLimitsLow>
-                        <ControlLimitsHigh>30 30 30 30 30 30 30 30 30 30  5 5 5</ControlLimitsHigh>
-                        <dt>0.01</dt>
+                        <ControlLimitsLow>0 0 0 0 0 0 0 0 0 0    -5 -5 -5 -5</ControlLimitsLow>
+                        <ControlLimitsHigh>440 440 440 440 440 440 440 440 440 440  5 5 5 5</ControlLimitsHigh>
+                        <dt>1</dt>
                     </SatelliteDynamicsSolver>
                 </DynamicsSolver>
             </Scene>
         </PlanningScene>
 
-        <T>1000</T>
-        <tau>0.01</tau>
+        <T>100</T>
+        <tau>1</tau>
 
-        <Q_rate>10</Q_rate>
+        <Q_rate>0</Q_rate>
         <Q>
-            0 0 0  0 0 0  0 0 0
-            0 0 0  0 0 0  1 1 1
+            0 0 0  0 0 0 0
+            1 1 1  1 1 1
 
+            0 0 0 0
+            0 0 0 
         </Q>
         <Qf>
             1 1 1 1 1 1
             1 1 1 1 1 1
             1 1 1 1 1 1
+            1 1
         </Qf>
 
         <Qf_rate>100</Qf_rate>
 
-        <!-- Rate penalizes large control forces. -->
-        <!-- <R_rate>0</R_rate> -->
-        <R_rate>1e-3</R_rate>
 
-        <StartState>0 0 0    1 0 0 0    0 0 0    0 0 0 0 0 0    0 0 0 </StartState>
-        <!-- <GoalState> 5 5 5    0.924 0 0 0.383    0.5 1.57 -1.57    0 0 0 0 0 0   0 0 0 </GoalState> -->
-        <GoalState> 3 3 3    1 0 0 0   0.5 1.57 -1.57    0 0 0 0 0 0   0 0 0 </GoalState>
+        <!-- <StartState> 0 0 0     0 0 0 1     0 0 0    0 0 0      0   0    0    0      0 0 0 0</StartState> -->
+        <!-- <GoalState>  0 0 5     0 0 0 1     0 0 0    0 0 0      1.5   1.5  1.5  1.5      0 0 0 0</GoalState> -->
+
+        <StartState> 0 0 0     0 0 0 1     0 0 0    0 0 0      0     0    0    0      0 0 0 0</StartState>
+        <GoalState>  0 0 0     0 0 0 1     0 0 0    0 0 0      1.5 1.5    0    0      0 0 0 0</GoalState>
     </DynamicTimeIndexedShootingProblem>
 </PlannerDemoConfig>

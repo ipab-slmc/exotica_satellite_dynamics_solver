@@ -57,8 +57,8 @@ def create_marker(id, scale, pos, orientation, color, type, mesh="package://exot
 
 # ===================================================================
 
-solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.xml')
-# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.arm.xml')
+# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.xml')
+solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.arm.xml')
 # solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.arm.taskmap.xml')
 problem = solver.get_problem()
 
@@ -163,6 +163,7 @@ for i in range(solution.shape[1]):
     ax[i].plot(times, solution[:,i])
     ax[i].set_xlabel('time (s.)')
     ax[i].set_ylabel('u[{0}]'.format(i))
+    ax[i].set_ylim(0, 440)
 
 plt.show()
 
@@ -198,7 +199,7 @@ while True:
             update_end = time()
             # if problem.tau > update_end - update_start:
                 # sleep(problem.tau - (update_end - update_start))
-            sleep(0.005)
+            sleep(0.1)
         e = time()
         sleep(1)
         print("Time taken to roll-out:", e-s)

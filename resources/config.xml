@@ -1,11 +1,32 @@
 <?xml version="1.0" ?>
 <PlannerDemoConfig>    
+    <FeasibilityDrivenDDPSolver Name="FDDP">
+        <Debug>1</Debug>
+        <MaxIterations>100</MaxIterations>
+        <FunctionTolerance>1e-10</FunctionTolerance>
+        <ClampControlsInForwardPass>1</ClampControlsInForwardPass>
+    </FeasibilityDrivenDDPSolver>
+
     <ControlLimitedFeasibilityDrivenDDPSolver Name="BoxFDDP">
         <Debug>1</Debug>
         <MaxIterations>100</MaxIterations>
         <FunctionTolerance>1e-10</FunctionTolerance>
         <ClampControlsInForwardPass>1</ClampControlsInForwardPass>
     </ControlLimitedFeasibilityDrivenDDPSolver>
+
+    <ControlLimitedDDPSolver Name="BoxDDP">
+        <Debug>1</Debug>
+        <MaxIterations>100</MaxIterations>
+        <FunctionTolerance>1e-10</FunctionTolerance>
+        <ClampControlsInForwardPass>1</ClampControlsInForwardPass>
+    </ControlLimitedDDPSolver>
+
+    <AnalyticDDPSolver Name="DDP">
+        <Debug>1</Debug>
+        <MaxIterations>100</MaxIterations>
+        <FunctionTolerance>1e-10</FunctionTolerance>
+        <ClampControlsInForwardPass>1</ClampControlsInForwardPass>
+    </AnalyticDDPSolver>
     
     <DynamicTimeIndexedShootingProblem Name="satellite">
         <!-- <LossType>L2</LossType>
@@ -19,12 +40,14 @@
         <Mode2>   50</Mode2> -->
     
         <!-- <LossType>SmoothL1</LossType> -->
-        <!-- <L1Rate>1e-3</L1Rate>
-        <L1IncreaseRate>1.05</L1IncreaseRate>
-        <MaxL1Rate>1e3</MaxL1Rate> -->
+        <!-- <L1Rate>1</L1Rate> -->
+        <!-- <L1IncreaseRate>1.05</L1IncreaseRate> -->
+        <!-- <MaxL1Rate>1e3</MaxL1Rate> -->
 
-        <!-- <LossType>L2</LossType>        
-        <R_rate>1e-5</R_rate> -->
+        <!-- <LossType>L2</LossType>         -->
+        <!-- <R_rate>1e-5</R_rate> -->
+
+        <ControlCostWeight>1e-3</ControlCostWeight>
 
 
         <PlanningScene>
@@ -37,14 +60,14 @@
                     <SatelliteDynamicsSolver Name="dsolver" Integrator="RK1">
                         <ControlLimitsLow>  0</ControlLimitsLow>
                         <ControlLimitsHigh> 440</ControlLimitsHigh>
-                        <dt>0.1</dt>
+                        <dt>1</dt>
                     </SatelliteDynamicsSolver>
                 </DynamicsSolver>
             </Scene>
         </PlanningScene>
 
-        <T>1000</T>
-        <tau>0.1</tau>
+        <T>200</T>
+        <tau>1</tau>
 
         <Q_rate>0</Q_rate>
         <Q>
@@ -59,8 +82,8 @@
         <Qf_rate>100</Qf_rate>
 
 
-        <StartState> 0 0 0     0 0 0 1    0 0 0    0 0 0    </StartState>
-        <GoalState>  5 5 5     0 0 0 1    0 0 0    0 0 0    </GoalState>
+        <GoalState> 0 0 0     0 0 0 1    0 0 0    0 0 0    </GoalState>
+        <StartState>  0 0 5   0 0.7071068 0 0.7071068    0 0 0    0 0 0    </StartState>
         <!-- <StartState>  0 0 0    0 0.7071068 0 0.7071068   0 0 0    0 0 0    </StartState> -->
         <!-- <GoalState>   5 5 5    0 0.7071068 0 0.7071068   0 0 0    0 0 0    </GoalState> -->
     </DynamicTimeIndexedShootingProblem>
