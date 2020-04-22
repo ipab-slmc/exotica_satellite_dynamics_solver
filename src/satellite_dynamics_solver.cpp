@@ -182,6 +182,33 @@ Eigen::VectorXd SatelliteDynamicsSolver::StateDelta(const StateVector& x_1, cons
     return dx;
 }
 
+Eigen::MatrixXd SatelliteDynamicsSolver::dStateDelta(const StateVector& x_1, const StateVector& x_2, const ArgumentPosition first_or_second)
+{
+    if (x_1.size() != num_positions_ + num_velocities_ || x_2.size() != num_positions_ + num_velocities_)
+    {
+        ThrowPretty("x_1 or x_2 do not have correct size, x1=" << x_1.size() << " x2=" << x_2.size() << " expected " << num_positions_ + num_velocities_);
+    }
+
+    if (first_or_second != ArgumentPosition::ARG0 && first_or_second != ArgumentPosition::ARG1)
+    {
+        ThrowPretty("Can only take derivative w.r.t. x_1 or x_2, i.e., ARG0 or ARG1. Provided: " << first_or_second);
+    }
+
+    Eigen::MatrixXd J = Eigen::MatrixXd::Identity(2 * num_velocities_, 2 * num_velocities_);
+
+    if (first_or_second == ArgumentPosition::ARG0)
+    {
+        pinocchio::dDifference(model_, x_2.head(num_positions_), x_1.head(num_positions_), J.topLeftCorner(num_velocities_, num_velocities_), pinocchio::ArgumentPosition::ARG1);
+    }
+    else
+    {
+        pinocchio::dDifference(model_, x_2.head(num_positions_), x_1.head(num_positions_), J.topLeftCorner(num_velocities_, num_velocities_), pinocchio::ArgumentPosition::ARG0);
+        J.bottomRightCorner(num_velocities_, num_velocities_) *= -1.0;
+    }
+
+    return J;
+}
+
 void SatelliteDynamicsSolver::Integrate(const StateVector& x, const StateVector& dx, const double dt, StateVector& xout)
 {
     Eigen::VectorXd dx_times_dt = dt * dx;

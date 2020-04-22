@@ -67,6 +67,7 @@ public:
 
     Eigen::VectorXd GetPosition(Eigen::VectorXdRefConst x_in) override;
     StateVector StateDelta(const StateVector& x_1, const StateVector& x_2) override;
+    Eigen::MatrixXd dStateDelta(const StateVector& x_1, const StateVector& x_2, const ArgumentPosition first_or_second) override;
     void Integrate(const StateVector& x, const StateVector& dx, const double dt, StateVector& xout) override;
 
 private:
