@@ -11,6 +11,12 @@ roslib.load_manifest(PKG)  # This line is not needed with Catkin.
 class TestDynamicsSolver(unittest.TestCase):
     def test_satellite_dynamics_solver(self):
         check_dynamics_solver_derivatives('exotica/SatelliteDynamicsSolver',
+                                          u'{exotica_satellite_dynamics_solver}/resources/robots/satellite/satellite.noarm.urdf',
+                                          u'{exotica_satellite_dynamics_solver}/resources/robots/satellite/satellite.srdf',
+                                          u'base')
+
+    def test_satellite_dynamics_solver_with_arm(self):
+        check_dynamics_solver_derivatives('exotica/SatelliteDynamicsSolver',
                                           u'{exotica_satellite_dynamics_solver}/resources/robots/satellite/satellite.urdf',
                                           u'{exotica_satellite_dynamics_solver}/resources/robots/satellite/satellite.srdf',
                                           u'base_with_arm')
