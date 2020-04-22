@@ -19,7 +19,10 @@ catkin_package(
   DEPENDS pinocchio
 )
 
-xacro_add_files(${CMAKE_CURRENT_SOURCE_DIR}/resources/robots/satellite/satellite.urdf.xacro INORDER INSTALL DESTINATION resources/robots/satellite)
+xacro_add_files(
+  ${CMAKE_CURRENT_SOURCE_DIR}/resources/robots/satellite/satellite.urdf.xacro
+  ${CMAKE_CURRENT_SOURCE_DIR}/resources/robots/satellite/satellite.noarm.urdf.xacro
+  INORDER INSTALL DESTINATION resources/robots/satellite)
 
 include_directories(
   include
