@@ -162,7 +162,7 @@ Eigen::VectorXd SatelliteDynamicsSolver::f(const StateVector& x, const ControlVe
 Eigen::VectorXd SatelliteDynamicsSolver::GetPosition(Eigen::VectorXdRefConst x_in)
 {
     // Convert quaternion to Euler angles.
-    Eigen::VectorXd xyz_rpy = Eigen::VectorXd::Zero(num_positions_ - 1);
+    Eigen::VectorXd xyz_rpy(num_positions_ - 1);
     xyz_rpy.head<3>() = x_in.head<3>();
     xyz_rpy.segment<3>(3) = Eigen::Quaterniond(x_in.segment<4>(3)).toRotationMatrix().eulerAngles(0, 1, 2);
     xyz_rpy.segment(6, num_aux_joints_) = x_in.segment(7, num_aux_joints_);
