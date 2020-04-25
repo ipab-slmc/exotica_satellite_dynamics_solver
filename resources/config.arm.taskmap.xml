@@ -25,7 +25,7 @@
                 <SRDF>{exotica_satellite_dynamics_solver}/resources/robots/satellite/satellite.srdf</SRDF>
                 <SetRobotDescriptionRosParams>1</SetRobotDescriptionRosParams>
                 <DynamicsSolver>
-                    <SatelliteDynamicsSolver Name="dsolver" Integrator="RK1">
+                    <SatelliteDynamicsSolver Name="dsolver">
                         <ControlLimitsLow>0 0 0 0 0 0 0 0 0 0    -10 -10 -10</ControlLimitsLow>
                         <ControlLimitsHigh>50 50 50 50 50 50 50 50 50 50  10 10 10</ControlLimitsHigh>
                         <dt>0.05</dt>

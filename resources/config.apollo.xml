@@ -57,7 +57,7 @@
                 <SRDF>{exotica_satellite_dynamics_solver}/resources/robots/satellite/satellite.srdf</SRDF>
                 <SetRobotDescriptionRosParams>1</SetRobotDescriptionRosParams>
                 <DynamicsSolver>
-                    <SatelliteDynamicsSolver Name="dsolver" Integrator="RK1">
+                    <SatelliteDynamicsSolver Name="dsolver">
                         <ControlLimitsLow>  0</ControlLimitsLow>
                         <ControlLimitsHigh> 440</ControlLimitsHigh>
                         <dt>1</dt>
@@ -84,9 +84,7 @@
 
         <!-- <GoalState> 0 0 0     0 0 0 1    0 0 0    0 0 0    </GoalState> -->
         <!-- <StartState>  0 0 5   0 0.70710678118654746172 0 0.70710678118654746172    0 0 0    0 0 0    </StartState> -->
-        <!-- <StartState>  0 0 0    0 0.70710678118654746172 0 0.70710678118654746172   0 0 0    0 0 0    </StartState>
-        <GoalState>   5 0 0    0 0.70710678118654746172 0 -0.70710678118654746172   0 0 0    0 0 0    </GoalState> -->
-        <StartState>  0 0 0    0 0.7071068 0 0.7071068   0 0 0    0 0 0    </StartState>
-        <GoalState>   5 0 0    0 0.7071068 0 -0.7071068   0 0 0    0 0 0    </GoalState>
+        <StartState>  0 0 0    0 0.70710678118654746172 0 0.70710678118654746172   0 0 0    0 0 0    </StartState>
+        <GoalState>   5 0 0    0 0.70710678118654746172 0 -0.70710678118654746172   0 0 0    0 0 0    </GoalState>
     </DynamicTimeIndexedShootingProblem>
 </PlannerDemoConfig>
