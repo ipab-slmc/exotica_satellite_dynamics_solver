@@ -209,6 +209,48 @@ Eigen::MatrixXd SatelliteDynamicsSolver::dStateDelta(const StateVector& x_1, con
     return J;
 }
 
+Hessian SatelliteDynamicsSolver::ddStateDelta(const StateVector& x_1, const StateVector& x_2, const ArgumentPosition first_or_second)
+{
+    if (x_1.size() != num_positions_ + num_velocities_ || x_2.size() != num_positions_ + num_velocities_)
+    {
+        ThrowPretty("x_1 or x_2 do not have correct size, x1=" << x_1.size() << " x2=" << x_2.size() << " expected " << num_positions_ + num_velocities_);
+    }
+
+    if (first_or_second != ArgumentPosition::ARG0 && first_or_second != ArgumentPosition::ARG1)
+    {
+        ThrowPretty("Can only take derivative w.r.t. x_1 or x_2, i.e., ARG0 or ARG1. Provided: " << first_or_second);
+    }
+
+    if (first_or_second == ArgumentPosition::ARG1) ThrowPretty("Not yet implemented.");
+
+    // In Euclidean spaces, this is zero.
+    Hessian ddStateDelta;
+    ddStateDelta.setConstant(get_num_state_derivative(), Eigen::MatrixXd::Zero(get_num_state_derivative(), get_num_state_derivative()));
+
+    // Use finite differences for the first 6 components (Lie group)
+    constexpr double eps = 1e-8;
+    Eigen::VectorXd dq_numdiff(num_velocities_);
+    Eigen::VectorXd q0_plus(num_positions_), q0_minus(num_positions_);
+    Eigen::MatrixXd dJdiff_dq0_plus(num_velocities_, num_velocities_), dJdiff_dq0_minus(num_velocities_, num_velocities_);
+    // NB: We only differentiate the first 6 dimensions for the free-flyer joint.
+    // The other dimensions evaluate to 0.
+    for (int i = 0; i < 6; ++i)
+    {
+        dq_numdiff.setZero();
+        dq_numdiff(i) = eps / 2.0;
+
+        pinocchio::integrate(model_, x_1.head(num_positions_), dq_numdiff, q0_plus);
+        pinocchio::integrate(model_, x_1.head(num_positions_), -dq_numdiff, q0_minus);
+
+        pinocchio::dDifference(model_, x_2.head(num_positions_), q0_plus, dJdiff_dq0_plus, pinocchio::ArgumentPosition::ARG1);
+        pinocchio::dDifference(model_, x_2.head(num_positions_), q0_minus, dJdiff_dq0_minus, pinocchio::ArgumentPosition::ARG1);
+
+        ddStateDelta(i).topLeftCorner(num_velocities_, num_velocities_).noalias() = (dJdiff_dq0_plus - dJdiff_dq0_minus) / eps;
+    }
+
+    return ddStateDelta;
+}
+
 void SatelliteDynamicsSolver::Integrate(const StateVector& x, const StateVector& dx, const double dt, StateVector& xout)
 {
     Eigen::VectorXd dx_times_dt = dt * dx;
