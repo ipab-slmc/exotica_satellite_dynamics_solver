@@ -9,9 +9,8 @@
 
     <ControlLimitedFeasibilityDrivenDDPSolver Name="BoxFDDP">
         <Debug>1</Debug>
-        <MaxIterations>1000</MaxIterations>
-        <FunctionTolerance>1e-10</FunctionTolerance>
-        <UseNewBoxQP>1</UseNewBoxQP>
+        <MaxIterations>50</MaxIterations>
+        <UseNewBoxQP>0</UseNewBoxQP> <!-- Weird memory bug in NewBoxQP with L1 ?! Old BoxQP works just fine -->
         <BoxQPUseCholeskyFactorization>1</BoxQPUseCholeskyFactorization>
     </ControlLimitedFeasibilityDrivenDDPSolver>
 
@@ -19,36 +18,33 @@
         <Debug>1</Debug>
         <MaxIterations>100</MaxIterations>
         <FunctionTolerance>1e-10</FunctionTolerance>
-        <ClampControlsInForwardPass>1</ClampControlsInForwardPass>
-    </ControlLimitedDDPSolver>
+        <RegularizationRate>0.1</RegularizationRate>
+    </ControlLimitedDDPSolver> -->
 
-    <AnalyticDDPSolver Name="DDP">
+    <!-- <AnalyticDDPSolver Name="DDP">
         <Debug>1</Debug>
         <MaxIterations>100</MaxIterations>
-        <FunctionTolerance>1e-10</FunctionTolerance>
+        <RegularizationRate>0.1</RegularizationRate>
         <ClampControlsInForwardPass>1</ClampControlsInForwardPass>
     </AnalyticDDPSolver> -->
     
     <DynamicTimeIndexedShootingProblem Name="satellite">
-        <!-- <LossType>L2</LossType> -->
-        <!-- <L2Rate>0</L2Rate> -->
-
-        <LossType>Huber</LossType>
+        <!-- <LossType>Huber</LossType> -->
         <HuberRate>0.1</HuberRate>
 
-        <!-- <LossType>BiModalHuber</LossType>
+        <!-- <LossType>BiModalHuber</LossType> -->
         <Mode1>    0</Mode1>
-        <Mode2>   50</Mode2> -->
+        <Mode2>   50</Mode2>
     
         <!-- <LossType>SmoothL1</LossType> -->
-        <!-- <L1Rate>1</L1Rate> -->
-        <!-- <L1IncreaseRate>1.05</L1IncreaseRate> -->
-        <!-- <MaxL1Rate>1e3</MaxL1Rate> -->
+        <L1Rate>1</L1Rate>
+        <L1IncreaseRate>1.05</L1IncreaseRate>
+        <MaxL1Rate>1e3</MaxL1Rate>
 
-        <!-- <LossType>L2</LossType>         -->
-        <!-- <R_rate>1e-5</R_rate> -->
+        <LossType>L2</LossType>        
+        <R_rate>1e-5</R_rate>
 
-        <ControlCostWeight>10</ControlCostWeight>
+        <ControlCostWeight>0.01</ControlCostWeight>
 
         <PlanningScene>
             <Scene>
@@ -69,7 +65,7 @@
         <T>200</T>
         <tau>1</tau>
 
-        <Q_rate>0</Q_rate>
+        <Q_rate>1e-5</Q_rate>
         <Q>
             0 0 0 0 0 0
             0 0 0 1 1 1
@@ -79,7 +75,7 @@
             1 1 1 1 1 1
         </Qf>
 
-        <Qf_rate>100</Qf_rate>
+        <Qf_rate>10</Qf_rate>
 
 
         <!-- <GoalState> 0 0 0     0 0 0 1    0 0 0    0 0 0    </GoalState> -->
