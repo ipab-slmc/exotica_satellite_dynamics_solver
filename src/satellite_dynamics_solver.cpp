@@ -253,7 +253,7 @@ Hessian SatelliteDynamicsSolver::ddStateDelta(const StateVector& x_1, const Stat
         dJdiff_dx0_plus = dStateDelta(x0_plus, x_2, ArgumentPosition::ARG0);    // J1
         dJdiff_dx0_minus = dStateDelta(x0_minus, x_2, ArgumentPosition::ARG0);  // J2
 
-        for (int i = 0; i < get_num_state_derivative(); ++i)
+        for (int i = 0; i < 6; ++i)
         {
             for (int k = 0; k < 6; ++k)
             {
