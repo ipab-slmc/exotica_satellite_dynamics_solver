@@ -254,7 +254,9 @@ Hessian SatelliteDynamicsSolver::ddStateDelta(const StateVector& x_1, const Stat
 void SatelliteDynamicsSolver::Integrate(const StateVector& x, const StateVector& dx, const double dt, StateVector& xout)
 {
     Eigen::VectorXd dx_times_dt = dt * dx;
-    pinocchio::integrate(model_, x.head(num_positions_), dx_times_dt.head(num_velocities_), xout.head(num_positions_));
+    Eigen::VectorXd x_normalized = x;
+    NormalizeQuaternionInConfigurationVector(x_normalized);
+    pinocchio::integrate(model_, x_normalized.head(num_positions_), dx_times_dt.head(num_velocities_), xout.head(num_positions_));
     xout.tail(num_velocities_) = x.tail(num_velocities_) + dx_times_dt.tail(num_velocities_);
 }
 
