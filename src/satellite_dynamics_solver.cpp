@@ -230,22 +230,36 @@ Hessian SatelliteDynamicsSolver::ddStateDelta(const StateVector& x_1, const Stat
     // Use finite differences for the first 6 components (Lie group)
     constexpr double eps = 1e-8;
     Eigen::VectorXd dq_numdiff(num_velocities_);
-    Eigen::VectorXd q0_plus(num_positions_), q0_minus(num_positions_);
-    Eigen::MatrixXd dJdiff_dq0_plus(num_velocities_, num_velocities_), dJdiff_dq0_minus(num_velocities_, num_velocities_);
+    Eigen::VectorXd x0_plus(get_num_state()), x0_minus(get_num_state()), x_1_normalized(get_num_state());
+    Eigen::MatrixXd dJdiff_dx0_plus(get_num_state_derivative(), get_num_state_derivative()), dJdiff_dx0_minus(get_num_state_derivative(), get_num_state_derivative());
+
+    // Normalize input quaternion
+    x_1_normalized = x_1;
+    NormalizeQuaternionInConfigurationVector(x_1_normalized);
+
     // NB: We only differentiate the first 6 dimensions for the free-flyer joint.
     // The other dimensions evaluate to 0.
-    for (int i = 0; i < 6; ++i)
+    for (int j = 0; j < 6; ++j)
     {
         dq_numdiff.setZero();
-        dq_numdiff(i) = eps / 2.0;
+        dq_numdiff(j) = eps / 2.0;
 
-        pinocchio::integrate(model_, x_1.head(num_positions_), dq_numdiff, q0_plus);
-        pinocchio::integrate(model_, x_1.head(num_positions_), -dq_numdiff, q0_minus);
+        x0_plus.setZero();
+        x0_minus.setZero();
 
-        pinocchio::dDifference(model_, x_2.head(num_positions_), q0_plus, dJdiff_dq0_plus, pinocchio::ArgumentPosition::ARG1);
-        pinocchio::dDifference(model_, x_2.head(num_positions_), q0_minus, dJdiff_dq0_minus, pinocchio::ArgumentPosition::ARG1);
+        pinocchio::integrate(model_, x_1_normalized.head(num_positions_), dq_numdiff, x0_plus.head(num_positions_));
+        pinocchio::integrate(model_, x_1_normalized.head(num_positions_), -dq_numdiff, x0_minus.head(num_positions_));
 
-        ddStateDelta(i).topLeftCorner(num_velocities_, num_velocities_).noalias() = (dJdiff_dq0_plus - dJdiff_dq0_minus) / eps;
+        dJdiff_dx0_plus = dStateDelta(x0_plus, x_2, ArgumentPosition::ARG0);    // J1
+        dJdiff_dx0_minus = dStateDelta(x0_minus, x_2, ArgumentPosition::ARG0);  // J2
+
+        for (int i = 0; i < get_num_state_derivative(); ++i)
+        {
+            for (int k = 0; k < 6; ++k)
+            {
+                ddStateDelta(k)(i, j) = (dJdiff_dx0_plus(k, i) - dJdiff_dx0_minus(k, i)) / eps;
+            }
+        }
     }
 
     return ddStateDelta;
