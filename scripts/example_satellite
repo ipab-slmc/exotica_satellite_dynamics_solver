@@ -77,8 +77,7 @@ print('Solver terminated with: ', problem.termination_criterion)
 #     problem.update(solution[t,:],t)
 
 costs = problem.get_cost_evolution()
-
-# np.savez('satellite_results', times=costs[0], costs=costs[1], X=problem.X, U=problem.U, solution=solution)
+np.savez('satellite_results', times=costs[0], costs=costs[1], X=problem.X, U=problem.U, solution=solution)
 
 import matplotlib.pyplot as plt
 fig_convergence = plt.figure()
@@ -106,7 +105,7 @@ for i in range(solution.shape[1]):
 
 # plt.show()
 
-# visualization = exo.Visualization(problem.get_scene())
+# visualization = exo.VisualizationMoveIt(problem.get_scene())
 # visualization.display_trajectory(
     # problem.X[:problem.num_positions, :].T
 # )
