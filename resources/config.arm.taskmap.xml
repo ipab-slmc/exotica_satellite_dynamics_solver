@@ -1,19 +1,22 @@
-<?xml version="1" ?>
+<?xml version="1.0" ?>
 <PlannerDemoConfig>
-    <ControlLimitedFeasibilityDrivenDDPSolver Name="BoxFDDP">
+    <FeasibilityDrivenDDPSolver Name="FDDP">
         <Debug>1</Debug>
-        <MaxIterations>3000</MaxIterations>
+        <MaxIterations>100</MaxIterations>
         <UseNewBoxQP>1</UseNewBoxQP>
-    </ControlLimitedFeasibilityDrivenDDPSolver>
+        <ClampControlsInForwardPass>1</ClampControlsInForwardPass>
+        <BoxQPUseCholeskyFactorization>1</BoxQPUseCholeskyFactorization>
+        <DerivativeOrder>2</DerivativeOrder>
+    </FeasibilityDrivenDDPSolver>
 
     <DynamicTimeIndexedShootingProblem Name="satellite">
-        <!-- <L1Rate>1 1 1 1 1 1 1 1 1  0 0 0 0</L1Rate> -->
-        <!-- <HuberRate>1 1 1 1 1 1 1 1 1 1  1 1 1 1</HuberRate> -->
-        <!-- <L1IncreaseRate>1.5</L1IncreaseRate> -->
-        <!-- <LossType>Huber</LossType> -->
-        <!-- <R_rate>0</R_rate> -->
+        <!-- Huber for the thrusters -->
+        <!-- <HuberRate>0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1     0   0   0  0</HuberRate>     -->
+        <!-- <ControlCostWeight>1e-4</ControlCostWeight> -->
 
-        <R_rate>1e-12</R_rate>
+        <LossType>L2</LossType>
+        <!-- <R_rate>1e-3 1e-3 1e-3 1e-3 1e-3 1e-3 1e-3 1e-3 1e-3 1e-3   1e-1 1e-1 1e-1 1e-1</R_rate> -->
+        <R_rate>0</R_rate>
 
         <PlanningScene>
             <Scene>
@@ -23,9 +26,9 @@
                 <SetRobotDescriptionRosParams>1</SetRobotDescriptionRosParams>
                 <DynamicsSolver>
                     <SatelliteDynamicsSolver Name="dsolver">
-                        <ControlLimitsLow>0 0 0 0 0 0 0 0 0 0    -10 -10 -10 -10</ControlLimitsLow>
-                        <ControlLimitsHigh>50 50 50 50 50 50 50 50 50 50  10 10 10 10</ControlLimitsHigh>
-                        <dt>0.05</dt>
+                        <ControlLimitsLow>0 0 0 0 0 0 0 0 0 0    -5 -5 -5 -5</ControlLimitsLow>
+                        <ControlLimitsHigh>440 440 440 440 440 440 440 440 440 440  5 5 5 5</ControlLimitsHigh>
+                        <dt>1</dt>
                     </SatelliteDynamicsSolver>
                 </DynamicsSolver>
             </Scene>
@@ -38,30 +41,45 @@
                     <Frame Link="arm_end_eff" LinkOffset="0 0 0  1 0 0 0"/>
                 </EndEffector>
             </EffPosition>
-            <!-- <JointLimit Name="JL"/> -->
+            <JointLimit Name="JointLimit">
+                <SafePercentage>5</SafePercentage>
+            </JointLimit>
         </Maps>
 
         <Cost>
-            <Task Task="Position" Goal="5 5 5" Rho="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 10.0"/>
+            <Task Task="Position" Goal="9 9 9" Rho="
+            0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.0
+            0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.0
+            0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 10.0
+        "/>
+            <!-- <Task Task="JointLimit" Rho="1e-5"/> -->
         </Cost>
 
-        <T>150</T>
-        <tau>0.05</tau>
+        <T>300</T>
+        <tau>1</tau>
 
-        <Q>
-            0 0 0  0 0 0  0 0 0 0
-            0 0 0  1 1 1  1 1 1 1
-        </Q>
         <Q_rate>1</Q_rate>
+        <Q>
+            0 0 0  0 0 0 
+            0 0 0 0
 
+            1 1 1   1 1 1
+            1 1 1 1
+        </Q>
         <Qf>
-            1 1 1  0 0 0    0 0 0 0
-            1 1 1  1 1 1    1 1 1 1
+            1 1 1  1 1 1
+            0 0 0 0
+
+            1 1 1   1 1 1
+            1 1 1 1
         </Qf>
+
         <Qf_rate>10</Qf_rate>
 
-        <StartState>0 0 0    1 0 0 0    0 0 0             0 0 0   0 0 0    0 0 0 0 0</StartState>
-        <!-- <GoalState> 5 5 5    0.924 0 0 0.383    0.5 1.57 -1.57    0 0 0 0 0 0   0 0 0 </GoalState> -->
-        <GoalState> 3 3 3    1 0 0 0    0.5 1.57 -1.57    0 0 0   0 0 0   0 0 0 0 0</GoalState>
+        <!-- <StartState> 0 0 0     0 0 0 1     0 0 0    0 0 0      0   0    0    0      0 0 0 0</StartState> -->
+        <!-- <GoalState>  0 0 5     0 0 0 1     0 0 0    0 0 0      1.5   1.5  1.5  1.5      0 0 0 0</GoalState> -->
+
+        <StartState> 5 5 5     0 0 0 1       0     0    0     0          0 0 0  0 0 0  0 0 0 0</StartState>
+        <GoalState>  5 5 5     0 0 0 1       0     0    0     0          0 0 0  0 0 0  0 0 0 0</GoalState>
     </DynamicTimeIndexedShootingProblem>
 </PlannerDemoConfig>

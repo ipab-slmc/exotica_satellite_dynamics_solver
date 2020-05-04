@@ -61,8 +61,8 @@ def create_marker(marker_id, scale, pos, orientation, color, marker_type, ns="",
 
 # solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.xml')
 # solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.arm.xml')
-solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.apollo.xml')
-# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.arm.taskmap.xml')
+# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.apollo.xml')
+solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.arm.taskmap.xml')
 problem = solver.get_problem()
 scene = problem.get_scene()
 ds = scene.get_dynamics_solver()
@@ -107,10 +107,10 @@ for i in range(solution.shape[1]):
 
 # visualization = exo.VisualizationMoveIt(problem.get_scene())
 # visualization.display_trajectory(
-    # problem.X[:problem.num_positions, :].T
+#     problem.X[:problem.num_positions - 1, :].T
 # )
 
-# publish_trajectory(problem.X[:problem.num_positions, :].T, problem.T * problem.tau, problem)
+# publish_trajectory(problem.X[:problem.num_positions - 1, :].T, problem.T * problem.tau, problem)
 # exit(0)
 
 signal.signal(signal.SIGINT, sig_int_handler)
