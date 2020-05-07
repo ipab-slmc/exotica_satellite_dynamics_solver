@@ -176,6 +176,21 @@ background = create_marker(
     ns='background'
 )
 
+
+target_marker = Marker()
+target_marker.header.frame_id = 'exotica/world_frame'
+target_marker.action = Marker.ADD
+target_marker.type = Marker.SPHERE
+target_marker.scale.x = target_marker.scale.y = target_marker.scale.z = 0.5
+target_marker.pose.position.x = 9
+target_marker.pose.position.y = 9
+target_marker.pose.position.z = 9
+target_marker.pose.orientation.w = 1.0
+target_marker.color.a = 1.0
+target_marker.color.r = 1.0
+target_marker.id = 1
+
+
 while True:
     try:
         background.pose.position.x = -10
@@ -215,8 +230,9 @@ while True:
 
         if not marker_array_published:
             markerArray.markers.append(traj_line)
-            markerArray.markers.append(start_marker)
-            markerArray.markers.append(end_marker)
+            markerArray.markers.append(target_marker)
+            # markerArray.markers.append(start_marker)
+            # markerArray.markers.append(end_marker)
             # markerArray.markers.append(background)
             marker_array_published = True
 

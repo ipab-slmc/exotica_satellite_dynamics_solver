@@ -32,7 +32,7 @@
             </Scene>
         </PlanningScene>
 
-        <T>100</T>
+        <T>300</T>
         <tau>1</tau>
 
         <Q_rate>1</Q_rate>

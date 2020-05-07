@@ -2,7 +2,7 @@
 <PlannerDemoConfig>
     <FeasibilityDrivenDDPSolver Name="FDDP">
         <Debug>1</Debug>
-        <MaxIterations>100</MaxIterations>
+        <MaxIterations>200</MaxIterations>
         <UseNewBoxQP>1</UseNewBoxQP>
         <ClampControlsInForwardPass>1</ClampControlsInForwardPass>
         <BoxQPUseCholeskyFactorization>1</BoxQPUseCholeskyFactorization>
@@ -42,7 +42,7 @@
                 </EndEffector>
             </EffPosition>
             <JointLimit Name="JointLimit">
-                <SafePercentage>5</SafePercentage>
+                <SafePercentage>0</SafePercentage>
             </JointLimit>
         </Maps>
 
@@ -50,15 +50,18 @@
             <Task Task="Position" Goal="9 9 9" Rho="
             0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.0
             0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.0
-            0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 10.0
+            0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.0
+            0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.0
+            0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.0
+            0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.0
         "/>
-            <!-- <Task Task="JointLimit" Rho="1e-5"/> -->
+            <!-- <Task Task="JointLimit" Rho="0.1"/> -->
         </Cost>
 
-        <T>300</T>
+        <T>600</T>
         <tau>1</tau>
 
-        <Q_rate>1</Q_rate>
+        <Q_rate>0</Q_rate>
         <Q>
             0 0 0  0 0 0 
             0 0 0 0
@@ -67,14 +70,14 @@
             1 1 1 1
         </Q>
         <Qf>
-            1 1 1  1 1 1
+            0 0 0  0 0 0
             0 0 0 0
 
             1 1 1   1 1 1
             1 1 1 1
         </Qf>
 
-        <Qf_rate>10</Qf_rate>
+        <Qf_rate>1</Qf_rate>
 
         <!-- <StartState> 0 0 0     0 0 0 1     0 0 0    0 0 0      0   0    0    0      0 0 0 0</StartState> -->
         <!-- <GoalState>  0 0 5     0 0 0 1     0 0 0    0 0 0      1.5   1.5  1.5  1.5      0 0 0 0</GoalState> -->
