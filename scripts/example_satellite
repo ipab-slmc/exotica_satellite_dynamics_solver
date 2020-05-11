@@ -223,7 +223,7 @@ while True:
             update_end = time()
             # if problem.tau > update_end - update_start:
                 # sleep(problem.tau - (update_end - update_start))
-            sleep(0.01)
+            sleep(0.02)
         e = time()
         sleep(1)
         print("Time taken to roll-out:", e-s)
