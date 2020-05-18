@@ -6,6 +6,7 @@
         <UseNewBoxQP>1</UseNewBoxQP>
         <BoxQPUseCholeskyFactorization>1</BoxQPUseCholeskyFactorization>
         <DerivativeOrder>2</DerivativeOrder>
+        <ClampControlsInForwardPass>1</ClampControlsInForwardPass>
     </FeasibilityDrivenDDPSolver>
 
     <DynamicTimeIndexedShootingProblem Name="satellite">
@@ -14,7 +15,7 @@
         <!-- <ControlCostWeight>1</ControlCostWeight> -->
 
         <LossType>L2</LossType>
-        <R_rate>1e-9</R_rate>
+        <R_rate>0</R_rate>
 
         <PlanningScene>
             <Scene>
@@ -32,7 +33,7 @@
             </Scene>
         </PlanningScene>
 
-        <T>300</T>
+        <T>100</T>
         <tau>1</tau>
 
         <Q_rate>1</Q_rate>
@@ -42,13 +43,14 @@
             1 1 1 1
 
             0 0 0   0 0 0
-            0 0 0 0
+            1 1 1 1
         </Q>
         <Qf>
-            1 1 1 1 1 1
-            1 1 1 1 1 1
-            1 1 1 1 1 1
-            1 1
+            1 1 1   1 1 1
+            1 1 1 1
+
+            10 10 10   10 10 10
+            10 10 10 10
         </Qf>
 
         <Qf_rate>10</Qf_rate>

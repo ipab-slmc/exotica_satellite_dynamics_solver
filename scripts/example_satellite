@@ -62,7 +62,8 @@ def create_marker(marker_id, scale, pos, orientation, color, marker_type, ns="",
 # solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.xml')
 # solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.arm.xml')
 # solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.apollo.xml')
-solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.arm.taskmap.xml')
+# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.arm.taskmap.xml')
+solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.collision.xml')
 problem = solver.get_problem()
 scene = problem.get_scene()
 ds = scene.get_dynamics_solver()
@@ -103,7 +104,7 @@ for i in range(solution.shape[1]):
     # if i < 10:
         # ax[i].set_ylim(0, 440)
 
-# plt.show()
+plt.show()
 
 # visualization = exo.VisualizationMoveIt(problem.get_scene())
 # visualization.display_trajectory(
