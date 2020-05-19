@@ -16,7 +16,7 @@
 
         <LossType>L2</LossType>
         <!-- <R_rate>1e-3 1e-3 1e-3 1e-3 1e-3 1e-3 1e-3 1e-3 1e-3 1e-3   1e-1 1e-1 1e-1 1e-1</R_rate> -->
-        <R_rate>0</R_rate>
+        <R_rate>1e-5</R_rate>
 
         <PlanningScene>
             <Scene>
@@ -28,12 +28,17 @@
                     <SatelliteDynamicsSolver Name="dsolver">
                         <ControlLimitsLow>0 0 0 0 0 0 0 0 0 0    -5 -5 -5 -5</ControlLimitsLow>
                         <ControlLimitsHigh>440 440 440 440 440 440 440 440 440 440  5 5 5 5</ControlLimitsHigh>
-                        <dt>2</dt>
+                        <dt>1</dt>
                     </SatelliteDynamicsSolver>
                 </DynamicsSolver>
 
                 <Links>
-                    <Link Name="Obstacle0" Transform="5 5 5"/>
+                    <Link Name="Obstacle0" Transform="5   5   5"/>
+                    <Link Name="Obstacle1" Transform="6.5 3.5 5"/>
+                    <Link Name="Obstacle2" Transform="8   2   5"/>
+                    <Link Name="Obstacle3" Transform="3.5 6.5 5"/>
+                    <Link Name="Obstacle4" Transform="2   8   5"/>
+                    <!-- <Link Name="Obstacle5" Transform="5 5 5"/> -->
                 </Links>
             </Scene>
         </PlanningScene>
@@ -45,13 +50,18 @@
                 <Precision>0.1</Precision>
                 <ReferenceFrame>exotica/world_frame</ReferenceFrame>
                 <EndEffector>
-                    <Frame Link="base_link" Radius="2.5" Group="Satellite" />
+                    <Frame Link="base_link" Radius="2" Group="Satellite" />
                     
                     <!-- <Frame Link="arm_end_eff" Radius="0.5" Group="Satellite" />
                     <Frame Link="arm_elbow" Radius="0.5" Group="Satellite" />
                     <Frame Link="arm_wrist" Radius="0.5" Group="Satellite" /> -->
 
-                    <Frame Link="Obstacle0" Radius="1" Group="Obstacle0" />
+                    <Frame Link="Obstacle0" Radius="0.5" Group="Obstacle0" />
+                    <Frame Link="Obstacle1" Radius="0.5" Group="Obstacle1" />
+                    <Frame Link="Obstacle2" Radius="0.5" Group="Obstacle2" />
+                    <Frame Link="Obstacle3" Radius="0.5" Group="Obstacle3" />
+                    <Frame Link="Obstacle4" Radius="0.5" Group="Obstacle4" />
+                    <!-- <Frame Link="Obstacle5" Radius="1" Group="Obstacle0" /> -->
                 </EndEffector>
             </SphereCollision>
 
@@ -73,34 +83,34 @@
         
         "/> -->
             <!-- <Task Task="JointLimit" Rho="1e-6"/> -->
-            <Task Task="Collision" Rho="1e-4"/>
+            <Task Task="Collision" Rho="1e-2"/>
         </Cost>
 
         <T>200</T>
-        <tau>2</tau>
+        <tau>1</tau>
 
         <Q_rate>1</Q_rate>
         <Q>
-            0 0 0  0 0 0 
+            0 0 0  1e-3 1e-3 1e-3
             1 1 1 1
 
-            0 0 0   1 1 1
+            0 0 0  1e-3 1e-3 1e-3
             1 1 1 1
         </Q>
         <Qf>
-            1 1 1   1 1 1
+            1 1 1   1e-3 1e-3 1e-3
             1 1 1 1
 
             1 1 1   1 1 1
             1 1 1 1
         </Qf>
 
-        <Qf_rate>10</Qf_rate>
+        <Qf_rate>100</Qf_rate>
 
         <!-- <StartState> 0 0 0     0 0 0 1     0 0 0    0 0 0      0   0    0    0      0 0 0 0</StartState> -->
         <!-- <GoalState>  0 0 5     0 0 0 1     0 0 0    0 0 0      1.5   1.5  1.5  1.5      0 0 0 0</GoalState> -->
 
         <StartState> 0 0 0        0 0 0 1       0     0    0     0          0 0 0  0 0 0  0 0 0 0</StartState>
-        <GoalState>  10 10 10     0 0 0 1       0     0    0     0          0 0 0  0 0 0  0 0 0 0</GoalState>
+        <GoalState>  10 10 10        0 0 0 1       0     0    0     0          0 0 0  0 0 0  0 0 0 0</GoalState>
     </DynamicTimeIndexedShootingProblem>
 </PlannerDemoConfig>
