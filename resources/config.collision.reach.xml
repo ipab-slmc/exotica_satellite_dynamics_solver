@@ -2,7 +2,7 @@
 <PlannerDemoConfig>
     <FeasibilityDrivenDDPSolver Name="FDDP">
         <Debug>1</Debug>
-        <MaxIterations>500</MaxIterations>
+        <MaxIterations>200</MaxIterations>
         <UseNewBoxQP>1</UseNewBoxQP>
         <ClampControlsInForwardPass>1</ClampControlsInForwardPass>
         <BoxQPUseCholeskyFactorization>1</BoxQPUseCholeskyFactorization>
@@ -16,7 +16,7 @@
 
         <LossType>L2</LossType>
         <!-- <R_rate>1e-3 1e-3 1e-3 1e-3 1e-3 1e-3 1e-3 1e-3 1e-3 1e-3   1e-1 1e-1 1e-1 1e-1</R_rate> -->
-        <R_rate>0</R_rate>
+        <R_rate>1e-5</R_rate>
 
         <PlanningScene>
             <Scene>
@@ -28,30 +28,38 @@
                     <SatelliteDynamicsSolver Name="dsolver">
                         <ControlLimitsLow>0 0 0 0 0 0 0 0 0 0    -5 -5 -5 -5</ControlLimitsLow>
                         <ControlLimitsHigh>440 440 440 440 440 440 440 440 440 440  5 5 5 5</ControlLimitsHigh>
-                        <dt>2</dt>
+                        <dt>1</dt>
                     </SatelliteDynamicsSolver>
                 </DynamicsSolver>
 
                 <Links>
-                    <Link Name="Obstacle0" Transform="5 5 5"/>
+                    <Link Name="Obstacle0" Transform="5   5   5"/>
+                    <Link Name="Obstacle1" Transform="6   4   5"/>
+                    <Link Name="Obstacle2" Transform="7   3   5"/>
+                    <Link Name="Obstacle3" Transform="4   6   5"/>
+                    <Link Name="Obstacle4" Transform="3   7   5"/>
                 </Links>
             </Scene>
         </PlanningScene>
 
         <!-- end-effector task maps -->
         <Maps>
-            <SphereCollision Name="Collision">
+            <SphereCollision Name="collision">
                 <Debug>1</Debug>
                 <Precision>0.1</Precision>
                 <ReferenceFrame>exotica/world_frame</ReferenceFrame>
                 <EndEffector>
-                    <Frame Link="base_link" Radius="2" Group="Satellite" />
-                    
+                    <Frame Link="base_link" Radius="1.5" Group="Satellite" />
+
                     <Frame Link="arm_end_eff" Radius="0.5" Group="Satellite" />
                     <Frame Link="arm_elbow" Radius="0.5" Group="Satellite" />
                     <Frame Link="arm_wrist" Radius="0.5" Group="Satellite" />
 
                     <Frame Link="Obstacle0" Radius="1" Group="Obstacle0" />
+                    <Frame Link="Obstacle1" Radius="1" Group="Obstacle1" />
+                    <Frame Link="Obstacle2" Radius="1" Group="Obstacle2" />
+                    <Frame Link="Obstacle3" Radius="1" Group="Obstacle3" />
+                    <Frame Link="Obstacle4" Radius="1" Group="Obstacle4" />
                 </EndEffector>
             </SphereCollision>
 
@@ -67,32 +75,35 @@
         </Maps>
 
         <Cost>
-            <Task Task="Position" Goal="9 9 9" Rho="
+            <Task Task="Position" Goal="7 7 7" Rho="
             
+            0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+            0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
             0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.0
         
         "/>
             <Task Task="JointLimit" Rho="1e-6"/>
-            <Task Task="Collision" Rho="1"/>
+            <Task Task="collision" Rho="1e-2"/>
+            <Task Task="JointLimit" Rho="1e-6"/>
         </Cost>
 
-        <T>100</T>
-        <tau>2</tau>
+        <T>300</T>
+        <tau>1</tau>
 
         <Q_rate>1e-6</Q_rate>
         <Q>
-            0 0 0  0 0 0 
+            0 0 0  1 1 1 
             1 1 1 1
 
             0 0 0   0 0 0
-            1 1 1 1
+            0 0 0 0
         </Q>
         <Qf>
-            0 0 0   1 1 1
-            1 1 1 1
+            0 0 0  0 0 0
+            1e-6 1e-6 1e-6 1e-6
 
-            10 10 10   10 10 10
-            10 10 10 10
+            1 1 1   1 1 1
+            1 1 1 1
         </Qf>
 
         <Qf_rate>10</Qf_rate>
@@ -100,7 +111,7 @@
         <!-- <StartState> 0 0 0     0 0 0 1     0 0 0    0 0 0      0   0    0    0      0 0 0 0</StartState> -->
         <!-- <GoalState>  0 0 5     0 0 0 1     0 0 0    0 0 0      1.5   1.5  1.5  1.5      0 0 0 0</GoalState> -->
 
-        <StartState> 0 0 0        0 0 0 1       0     0    0     0          0 0 0  0 0 0  0 0 0 0</StartState>
-        <GoalState>  10 10 10     0 0 0 1       0     0    0     0          0 0 0  0 0 0  0 0 0 0</GoalState>
+        <StartState> 2 2 2        0 0 0 1       0     0    0     0          0 0 0  0 0 0  0 0 0 0</StartState>
+        <GoalState>  0 0 0        0 0 0 1       0     0    0     0          0 0 0  0 0 0  0 0 0 0</GoalState>
     </DynamicTimeIndexedShootingProblem>
 </PlannerDemoConfig>
