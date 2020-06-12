@@ -49,11 +49,11 @@
                 <Precision>0.1</Precision>
                 <ReferenceFrame>exotica/world_frame</ReferenceFrame>
                 <EndEffector>
-                    <Frame Link="base_link" Radius="1.5" Group="Satellite" />
+                    <Frame Link="base_link" Radius="1.3" Group="Satellite" />
 
-                    <Frame Link="arm_end_eff" Radius="0.5" Group="Satellite" />
-                    <Frame Link="arm_elbow" Radius="0.5" Group="Satellite" />
-                    <Frame Link="arm_wrist" Radius="0.5" Group="Satellite" />
+                    <Frame Link="arm_end_eff" Radius="0.3" Group="Satellite" />
+                    <Frame Link="arm_elbow" Radius="0.3" Group="Satellite" />
+                    <Frame Link="arm_wrist" Radius="0.3" Group="Satellite" />
 
                     <Frame Link="Obstacle0" Radius="1" Group="Obstacle0" />
                     <Frame Link="Obstacle1" Radius="1" Group="Obstacle1" />
@@ -75,7 +75,7 @@
         </Maps>
 
         <Cost>
-            <Task Task="Position" Goal="7 7 7" Rho="
+            <Task Task="Position" Goal="7 7 5" Rho="
             
             0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
             0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -90,7 +90,7 @@
         <T>300</T>
         <tau>1</tau>
 
-        <Q_rate>1e-6</Q_rate>
+        <Q_rate>0</Q_rate>
         <Q>
             0 0 0  1 1 1 
             1 1 1 1

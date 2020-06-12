@@ -2,11 +2,11 @@
 <PlannerDemoConfig>
     <FeasibilityDrivenDDPSolver Name="FDDP">
         <Debug>1</Debug>
-        <MaxIterations>500</MaxIterations>
+        <MaxIterations>200</MaxIterations>
         <UseNewBoxQP>1</UseNewBoxQP>
         <ClampControlsInForwardPass>1</ClampControlsInForwardPass>
         <BoxQPUseCholeskyFactorization>1</BoxQPUseCholeskyFactorization>
-        <DerivativeOrder>2</DerivativeOrder>
+        <DerivativeOrder>1</DerivativeOrder>
     </FeasibilityDrivenDDPSolver>
 
     <DynamicTimeIndexedShootingProblem Name="satellite">
@@ -50,7 +50,7 @@
                 <Precision>0.1</Precision>
                 <ReferenceFrame>exotica/world_frame</ReferenceFrame>
                 <EndEffector>
-                    <Frame Link="base_link" Radius="2" Group="Satellite" />
+                    <Frame Link="base_link" Radius="1.5" Group="Satellite" />
                     
                     <!-- <Frame Link="arm_end_eff" Radius="0.5" Group="Satellite" />
                     <Frame Link="arm_elbow" Radius="0.5" Group="Satellite" />
@@ -83,34 +83,35 @@
         
         "/> -->
             <!-- <Task Task="JointLimit" Rho="1e-6"/> -->
-            <Task Task="Collision" Rho="1e-2"/>
+            <Task Task="Collision" Rho="1e-3"/>
         </Cost>
 
-        <T>200</T>
+        <T>500</T>
         <tau>1</tau>
 
         <Q_rate>1</Q_rate>
         <Q>
-            0 0 0  1e-3 1e-3 1e-3
+            0 0 0   1e-3 1e-3 1e-3
             1 1 1 1
 
-            0 0 0  1e-3 1e-3 1e-3
+            1e-3 1e-3 1e-3   1e-3 1e-3 1e-3
             1 1 1 1
         </Q>
+
         <Qf>
             1 1 1   1e-3 1e-3 1e-3
             1 1 1 1
 
-            1 1 1   1 1 1
+            10 10 10   10 10 10
             1 1 1 1
         </Qf>
 
-        <Qf_rate>100</Qf_rate>
+        <Qf_rate>10</Qf_rate>
 
         <!-- <StartState> 0 0 0     0 0 0 1     0 0 0    0 0 0      0   0    0    0      0 0 0 0</StartState> -->
         <!-- <GoalState>  0 0 5     0 0 0 1     0 0 0    0 0 0      1.5   1.5  1.5  1.5      0 0 0 0</GoalState> -->
 
-        <StartState> 0 0 0        0 0 0 1       0     0    0     0          0 0 0  0 0 0  0 0 0 0</StartState>
+        <StartState>  0  0  0        0 0 0 1       0     0    0     0          0 0 0  0 0 0  0 0 0 0</StartState>
         <GoalState>  10 10 10        0 0 0 1       0     0    0     0          0 0 0  0 0 0  0 0 0 0</GoalState>
     </DynamicTimeIndexedShootingProblem>
 </PlannerDemoConfig>
