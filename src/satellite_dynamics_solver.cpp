@@ -27,6 +27,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //
 
+#include <exotica_satellite_dynamics_solver/force_input_initializer.h>
 #include <exotica_satellite_dynamics_solver/satellite_dynamics_solver.h>
 #include <pinocchio/algorithm/joint-configuration.hpp>
 
@@ -44,6 +45,9 @@ void SatelliteDynamicsSolver::AssignScene(ScenePtr scene_in)
     constexpr bool verbose = false;
     pinocchio::urdf::buildModel(scene_in->GetKinematicTree().GetRobotModel()->getURDF(), pinocchio::JointModelFreeFlyer(), model_, verbose);
 
+    // Thrusters are specified in the initialiser:
+    num_thrusters_ = parameters_.Thrusters.size();
+
     num_positions_ = model_.nq;
     num_velocities_ = model_.nv;
     // We manually specify the number of thrusters (10) + active arm joints. We exclude the unactuated floating base (6).
@@ -57,24 +61,19 @@ void SatelliteDynamicsSolver::AssignScene(ScenePtr scene_in)
     // Create Pinocchio data
     pinocchio_data_.reset(new pinocchio::Data(model_));
 
-    // Get frame Ids
-    bot0_id_ = model_.getFrameId("base_to_thruster_bot");
-    bot1_id_ = model_.getFrameId("base_to_thruster_bot_1");
-    bot2_id_ = model_.getFrameId("base_to_thruster_bot_2");
-    bot3_id_ = model_.getFrameId("base_to_thruster_bot_3");
-    bot4_id_ = model_.getFrameId("base_to_thruster_bot_4");
-    top0_id_ = model_.getFrameId("base_to_thruster_top");
-    top1_id_ = model_.getFrameId("base_to_thruster_top_1");
-    top2_id_ = model_.getFrameId("base_to_thruster_top_2");
-    top3_id_ = model_.getFrameId("base_to_thruster_top_3");
-    top4_id_ = model_.getFrameId("base_to_thruster_top_4");
-
-    // Force directions
-    f1_ << 0, 0, -1, 0, 0, 0;
-    f2_ << 0, 1, 0, 0, 0, 0;
-    f3_ << -1, 0, 0, 0, 0, 0;
-    f4_ << 0, -1, 0, 0, 0, 0;
-    f5_ << 1, 0, 0, 0, 0, 0;
+    // Get frame Ids and force directions for each thruster
+    thruster_frame_ids_.reserve(num_thrusters_);
+    thruster_force_directions_.reserve(num_thrusters_);
+    for (int i = 0; i < num_thrusters_; ++i)
+    {
+        ForceInputInitializer force_init(parameters_.Thrusters[i]);
+        auto frame_id = model_.getFrameId(force_init.LinkName);
+        if (frame_id > model_.nframes) ThrowPretty("Frame '" << force_init.LinkName << "' does not exist.");
+        thruster_frame_ids_.emplace_back(frame_id);
+        Vector6 force_direction = Vector6::Zero();
+        force_direction.head<3>() = force_init.ForceDirection;
+        thruster_force_directions_.emplace_back(force_direction);
+    }
 
     // Pre-allocate data for f, fx, fu
     const int ndx = get_num_state_derivative();
@@ -90,28 +89,12 @@ void SatelliteDynamicsSolver::AssignScene(ScenePtr scene_in)
     daba_dfext_.setZero(model_.nv, num_controls_);
 
     // Set up derivative of external forces
-    auto bot0 = model_.frames[bot0_id_].placement.toDualActionMatrix(),
-         bot1 = model_.frames[bot1_id_].placement.toDualActionMatrix(),
-         bot2 = model_.frames[bot2_id_].placement.toDualActionMatrix(),
-         bot3 = model_.frames[bot3_id_].placement.toDualActionMatrix(),
-         bot4 = model_.frames[bot4_id_].placement.toDualActionMatrix();
-
-    auto top0 = model_.frames[top0_id_].placement.toDualActionMatrix(),
-         top1 = model_.frames[top1_id_].placement.toDualActionMatrix(),
-         top2 = model_.frames[top2_id_].placement.toDualActionMatrix(),
-         top3 = model_.frames[top3_id_].placement.toDualActionMatrix(),
-         top4 = model_.frames[top4_id_].placement.toDualActionMatrix();
-
-    daba_dfext_.block(0, 0, 6, 1) = bot0 * f1_;
-    daba_dfext_.block(0, 1, 6, 1) = bot1 * f2_;
-    daba_dfext_.block(0, 2, 6, 1) = bot2 * f3_;
-    daba_dfext_.block(0, 3, 6, 1) = bot3 * f4_;
-    daba_dfext_.block(0, 4, 6, 1) = bot4 * f5_;
-    daba_dfext_.block(0, 5, 6, 1) = -top0 * f1_;
-    daba_dfext_.block(0, 6, 6, 1) = top1 * f2_;
-    daba_dfext_.block(0, 7, 6, 1) = top2 * f3_;
-    daba_dfext_.block(0, 8, 6, 1) = top3 * f4_;
-    daba_dfext_.block(0, 9, 6, 1) = top4 * f5_;
+    thruster_action_matrices_.resize(num_thrusters_);
+    for (int i = 0; i < num_thrusters_; ++i)
+    {
+        thruster_action_matrices_[i] = model_.frames[thruster_frame_ids_[i]].placement.toDualActionMatrix();
+        daba_dfext_.block(0, i, 6, 1).noalias() = thruster_action_matrices_[i] * thruster_force_directions_[i];
+    }
 
     // Set up derivative of actuated joints
     dtau_du_.setZero(model_.nv, num_controls_);
@@ -121,29 +104,12 @@ void SatelliteDynamicsSolver::AssignScene(ScenePtr scene_in)
 void SatelliteDynamicsSolver::UpdateExternalForceInputFromThrusters(const ControlVector& u)
 {
     // Non-actuated joints
-    auto bot0 = model_.frames[bot0_id_].placement,
-         bot1 = model_.frames[bot1_id_].placement,
-         bot2 = model_.frames[bot2_id_].placement,
-         bot3 = model_.frames[bot3_id_].placement,
-         bot4 = model_.frames[bot4_id_].placement;
-
-    auto top0 = model_.frames[top0_id_].placement,
-         top1 = model_.frames[top1_id_].placement,
-         top2 = model_.frames[top2_id_].placement,
-         top3 = model_.frames[top3_id_].placement,
-         top4 = model_.frames[top4_id_].placement;
-
-    fext_[1] = pinocchio::Force(bot0.act(pinocchio::Force(f1_ * u(0))) +
-                                bot1.act(pinocchio::Force(f2_ * u(1))) +
-                                bot2.act(pinocchio::Force(f3_ * u(2))) +
-                                bot3.act(pinocchio::Force(f4_ * u(3))) +
-                                bot4.act(pinocchio::Force(f5_ * u(4))) +
-
-                                top0.act(pinocchio::Force(-1.0 * f1_ * u(5))) +
-                                top1.act(pinocchio::Force(f2_ * u(6))) +
-                                top2.act(pinocchio::Force(f3_ * u(7))) +
-                                top3.act(pinocchio::Force(f4_ * u(8))) +
-                                top4.act(pinocchio::Force(f5_ * u(9))));
+    fext_[1].setZero();
+    for (int i = 0; i < num_thrusters_; ++i)
+    {
+        const pinocchio::SE3& thruster_frame_placement = model_.frames[thruster_frame_ids_[i]].placement;
+        fext_[1] += thruster_frame_placement.act(pinocchio::Force(thruster_force_directions_[i] * u(i)));
+    }
 }
 
 Eigen::VectorXd SatelliteDynamicsSolver::f(const StateVector& x, const ControlVector& u)

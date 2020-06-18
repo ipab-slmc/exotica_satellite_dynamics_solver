@@ -57,6 +57,8 @@ namespace exotica
 {
 class SatelliteDynamicsSolver : public DynamicsSolver, public Instantiable<SatelliteDynamicsSolverInitializer>
 {
+    typedef Eigen::Matrix<double, 6, 1> Vector6;
+
 public:
     void AssignScene(ScenePtr scene_in) override;
 
@@ -80,15 +82,11 @@ private:
     Eigen::MatrixXd Minv_;
 
     // Thrusters
-    int num_thrusters_ = 10;
+    int num_thrusters_ = 0;
     int num_aux_joints_ = 0;
-    int top0_id_, top1_id_, top2_id_, top3_id_, top4_id_;
-    int bot0_id_, bot1_id_, bot2_id_, bot3_id_, bot4_id_;
-    Eigen::VectorXd f1_ = Eigen::VectorXd(6);
-    Eigen::VectorXd f2_ = Eigen::VectorXd(6);
-    Eigen::VectorXd f3_ = Eigen::VectorXd(6);
-    Eigen::VectorXd f4_ = Eigen::VectorXd(6);
-    Eigen::VectorXd f5_ = Eigen::VectorXd(6);
+    std::vector<pinocchio::FrameIndex> thruster_frame_ids_;
+    std::vector<Vector6> thruster_force_directions_;
+    pinocchio::container::aligned_vector<pinocchio::SE3::ActionMatrixType> thruster_action_matrices_;
     pinocchio::container::aligned_vector<pinocchio::Force> fext_;
     Eigen::MatrixXd daba_dfext_;
     Eigen::MatrixXd dtau_du_;

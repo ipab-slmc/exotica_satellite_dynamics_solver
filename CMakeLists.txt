@@ -9,7 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 find_package(pinocchio REQUIRED)
 
-AddInitializer(satellite_dynamics_solver)
+AddInitializer(force_input satellite_dynamics_solver)
 GenInitializers()
 
 catkin_package(

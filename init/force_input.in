@@ -1,0 +1,4 @@
+class ForceInput
+
+Required std::string LinkName;
+Optional Eigen::Vector3d ForceDirection = Eigen::Vector3d(1, 0, 0);

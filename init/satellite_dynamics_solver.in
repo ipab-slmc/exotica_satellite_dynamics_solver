@@ -1,3 +1,4 @@
 class SatelliteDynamicsSolver
 
 extend <exotica_core/dynamics_solver>
+Required std::vector<Initializer> Thrusters;
