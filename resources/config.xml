@@ -62,6 +62,19 @@
                     <SatelliteDynamicsSolver Name="dsolver">
                         <ControlLimitsLow>  0</ControlLimitsLow>
                         <ControlLimitsHigh> 440</ControlLimitsHigh>
+                        <Thrusters>
+                            <ForceInput LinkName="base_to_thruster_bot" ForceDirection="0 0 -1"/>
+                            <ForceInput LinkName="base_to_thruster_bot_1" ForceDirection="0 1 0"/>
+                            <ForceInput LinkName="base_to_thruster_bot_2" ForceDirection="-1 0 0"/>
+                            <ForceInput LinkName="base_to_thruster_bot_3" ForceDirection="0 -1 0"/>
+                            <ForceInput LinkName="base_to_thruster_bot_4" ForceDirection="1 0 0"/>
+                            
+                            <ForceInput LinkName="base_to_thruster_top" ForceDirection="0 0 1"/>
+                            <ForceInput LinkName="base_to_thruster_top_1" ForceDirection="0 1 0"/>
+                            <ForceInput LinkName="base_to_thruster_top_2" ForceDirection="-1 0 0"/>
+                            <ForceInput LinkName="base_to_thruster_top_3" ForceDirection="0 -1 0"/>
+                            <ForceInput LinkName="base_to_thruster_top_4" ForceDirection="1 0 0"/>
+                        </Thrusters>
                         <dt>1</dt>
                     </SatelliteDynamicsSolver>
                 </DynamicsSolver>
