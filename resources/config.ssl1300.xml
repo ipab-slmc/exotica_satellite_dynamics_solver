@@ -1,0 +1,80 @@
+<?xml version="1.0" ?>
+<PlannerDemoConfig>    
+    <FeasibilityDrivenDDPSolver Name="BoxFDDP">
+        <Debug>1</Debug>
+        <MaxIterations>100</MaxIterations>
+        <UseNewBoxQP>1</UseNewBoxQP> <!-- Weird memory bug in NewBoxQP with L1 ?! Old BoxQP works just fine -->
+        <BoxQPUseCholeskyFactorization>0</BoxQPUseCholeskyFactorization>
+    </FeasibilityDrivenDDPSolver>
+
+    <DynamicTimeIndexedShootingProblem Name="satellite">
+        <!-- <LossType>Huber</LossType> -->
+        <HuberRate>0.1</HuberRate>
+
+        <!-- <LossType>BiModalHuber</LossType> -->
+        <Mode1>    0</Mode1>
+        <Mode2>   50</Mode2>
+    
+        <!-- <LossType>SmoothL1</LossType> -->
+        <L1Rate>1</L1Rate>
+        <L1IncreaseRate>1.05</L1IncreaseRate>
+        <MaxL1Rate>1e3</MaxL1Rate>
+
+        <LossType>L2</LossType>        
+        <R_rate>1e-3</R_rate>
+
+        <ControlCostWeight>0.01</ControlCostWeight>
+
+        <PlanningScene>
+            <Scene>
+                <!-- <JointGroup>base</JointGroup> -->
+                <!-- <URDF>{ssl_1300_satellite_description}/urdf/ssl_1300_manip.urdf</URDF> -->
+                <!-- <SRDF>{ssl_1300_satellite_description}/srdf/ssl_1300.srdf</SRDF> -->
+                
+                <JointGroup>base_with_arm</JointGroup>
+                <URDF>{ssl_1300_orbital_manipulator_description}/urdf/ssl_1300_orbital_manipulator.urdf</URDF>
+                <SRDF>{ssl_1300_orbital_manipulator_description}/srdf/ssl_1300_orbital_manipulator.srdf</SRDF>
+                
+                <SetRobotDescriptionRosParams>1</SetRobotDescriptionRosParams>
+                <DynamicsSolver>
+                    <SatelliteDynamicsSolver Name="dsolver">
+                        <ControlLimitsLow>0</ControlLimitsLow>
+                        <ControlLimitsHigh>20</ControlLimitsHigh>
+                        <Thrusters>
+                            <ForceInput LinkName="thruster_main_joint" ForceDirection="1 0 0"/>
+                            <ForceInput LinkName="thruster1_joint" ForceDirection="1 0 0"/>
+                            <ForceInput LinkName="thruster2_joint" ForceDirection="1 0 0"/>
+                            <ForceInput LinkName="thruster3_joint" ForceDirection="1 0 0"/>
+                            <ForceInput LinkName="thruster4_joint" ForceDirection="1 0 0"/>
+                            <ForceInput LinkName="thruster5_joint" ForceDirection="1 0 0"/>
+                            <ForceInput LinkName="thruster6_joint" ForceDirection="1 0 0"/>
+                            <ForceInput LinkName="thruster7_joint" ForceDirection="1 0 0"/>
+                            <ForceInput LinkName="thruster8_joint" ForceDirection="1 0 0"/>
+                            <ForceInput LinkName="thruster9_joint" ForceDirection="1 0 0"/>
+                            <ForceInput LinkName="thruster10_joint" ForceDirection="1 0 0"/>
+                            <ForceInput LinkName="thruster11_joint" ForceDirection="1 0 0"/>
+                            <ForceInput LinkName="thruster12_joint" ForceDirection="1 0 0"/>
+                        </Thrusters>
+                        <dt>1</dt>
+                    </SatelliteDynamicsSolver>
+                </DynamicsSolver>
+            </Scene>
+        </PlanningScene>
+
+        <T>200</T>
+        <tau>1</tau>
+
+        <Q_rate>0</Q_rate>
+        <!-- <Q>
+            0 0 0 0 0 0
+            0 0 0 1 1 1
+        </Q> -->
+
+        <Qf_rate>50</Qf_rate>
+
+        <!-- <StartState>  0 0 0    0 0.70710678118654746172 0 0.70710678118654746172   0 0 0    0 0 0    </StartState>
+        <GoalState>   5 0 0    0 0.70710678118654746172 0 -0.70710678118654746172   0 0 0    0 0 0    </GoalState> -->
+        <StartState>  0 0 0    0 0.70710678118654746172 0 0.70710678118654746172   0 0 0    0 0 0    0 0 0 0 0 0 0 0 0 0 0 0 0 0</StartState>
+        <GoalState>   5 0 0    0 0.70710678118654746172 0 -0.70710678118654746172   0 0 0    0 0 0   0 0 0 0 0 0 0 0 0 0 0 0 0 0</GoalState>
+    </DynamicTimeIndexedShootingProblem>
+</PlannerDemoConfig>
