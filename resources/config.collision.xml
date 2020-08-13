@@ -4,9 +4,7 @@
         <Debug>1</Debug>
         <MaxIterations>200</MaxIterations>
         <UseNewBoxQP>1</UseNewBoxQP>
-        <ClampControlsInForwardPass>1</ClampControlsInForwardPass>
         <BoxQPUseCholeskyFactorization>1</BoxQPUseCholeskyFactorization>
-        <DerivativeOrder>1</DerivativeOrder>
     </FeasibilityDrivenDDPSolver>
 
     <DynamicTimeIndexedShootingProblem Name="satellite">
