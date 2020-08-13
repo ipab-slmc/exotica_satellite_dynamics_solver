@@ -35,9 +35,12 @@ def create_marker(marker_id, scale, pos, orientation, color, marker_type, ns="",
     marker.header.frame_id = "exotica/world_frame"
     marker.type = marker_type
     marker.action = marker.ADD
-    marker.scale.x = scale['x']
-    marker.scale.y = scale['y']
-    marker.scale.z = scale['z']
+    if 'x' in scale:
+        marker.scale.x = scale['x']
+    if 'y' in scale:
+        marker.scale.y = scale['y']
+    if 'z' in scale:
+        marker.scale.z = scale['z']
     marker.color.a = color['a']
     marker.color.r = color['r']
     marker.color.g = color['g']
@@ -156,7 +159,7 @@ for star_id in range(1000, 1300):
 
 traj_line = create_marker(
     marker_id=0,
-    scale={'x': .15, 'y': .15, 'z': .15},
+    scale={'x': .15},
     pos={'x': 0, 'y': 0, 'z': 0},
     orientation={'x': 0, 'y': 0, 'z': 0, 'w': 1},
     color={'a': .6, 'r': 1, 'g': 1, 'b': 1},
