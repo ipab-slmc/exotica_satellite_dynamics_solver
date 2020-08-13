@@ -59,6 +59,17 @@ void SatelliteDynamicsSolver::AssignScene(ScenePtr scene_in)
     // model_.gravity.setZero();
     model_.gravity = pinocchio::Motion(parameters_.Gravity, Eigen::Vector3d::Zero());
 
+    // Get joint limits
+    state_limits_lower_.setZero(get_num_state());
+    state_limits_upper_.setZero(get_num_state());
+    state_limits_lower_.head(model_.nq) = model_.lowerPositionLimit;
+    state_limits_lower_.tail(model_.nv) = -model_.velocityLimit;
+    state_limits_upper_.head(model_.nq) = model_.upperPositionLimit;
+    state_limits_upper_.tail(model_.nv) = model_.velocityLimit;
+    has_state_limits_ = true;
+    HIGHLIGHT("Lower State Limits:" << state_limits_lower_.transpose());
+    HIGHLIGHT("Upper State Limits:" << state_limits_upper_.transpose());
+
     // Create Pinocchio data
     pinocchio_data_.reset(new pinocchio::Data(model_));
 
