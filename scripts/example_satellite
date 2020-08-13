@@ -2,11 +2,21 @@
 from __future__ import print_function, division
 
 import pyexotica as exo
-import exotica_ilqr_solver_py, exotica_ddp_solver_py, exotica_ilqg_solver_py
+import exotica_ddp_solver_py
 from pyexotica.publish_trajectory import *
 import signal, sys
 from time import time, sleep
 import numpy as np
+import matplotlib.pyplot as plt
+
+
+save_result = False
+
+
+
+
+
+
 
 exo.Setup.init_ros()
 sleep(0.2)
@@ -79,7 +89,6 @@ print("nu", ds.nu)
 print("ndx", ds.ndx)
 print("problem.num_positions", problem.num_positions)
 
-
 solution = solver.solve()
 
 print('Solver took', solver.get_planning_time())
@@ -90,15 +99,20 @@ print('Solver terminated with: ', problem.termination_criterion)
 #     problem.update(solution[t,:],t)
 
 costs = problem.get_cost_evolution()
-np.savez('satellite_results', times=costs[0], costs=costs[1], X=problem.X, U=problem.U, solution=solution)
+save_result and np.savez('satellite_results', times=costs[0], costs=costs[1], X=problem.X, U=problem.U, solution=solution)
 
-import matplotlib.pyplot as plt
-# fig_convergence = plt.figure()
-plt.plot(range(len(costs[1])), costs[1])
+fig_convergence = plt.figure()
+fig_convergence.set_dpi(300)
+plt.plot(costs[1], label='Total Cost')
+plt.plot(np.array(costs[1])-np.array(solver.control_cost_evolution), label='Task')
+plt.plot(solver.control_cost_evolution, label='Control')
 plt.xlabel('Iteration')
 plt.ylabel('Cost')
 plt.yscale('log')
+plt.legend()
+plt.xlim(0)
 plt.grid()
+plt.tight_layout()
 
 # fig, ax = plt.subplots(5, 3)
 # ax = ax.flatten()
@@ -116,25 +130,25 @@ times = times[1:]
     # if i < 10:
         # ax[i].set_ylim(0, 440)
 
-plt.figure()
-fig, ax = plt.subplots(1, 3, figsize=(20, 6))
+# plt.figure()
+# fig, ax = plt.subplots(1, 3, figsize=(20, 6))
 
-ax[0].plot(solution)
+# ax[0].plot(solution)
 
-ax[0].set_xlabel('Knot')
-ax[0].set_ylabel('Control')
-ax[0].grid()
+# ax[0].set_xlabel('Knot')
+# ax[0].set_ylabel('Control')
+# ax[0].grid()
 
-ax[1].plot(problem.X[:11,:].T)
-ax[1].set_xlabel('Knot')
-ax[1].set_ylabel('Position')
-ax[1].grid()
+# ax[1].plot(problem.X[:11,:].T)
+# ax[1].set_xlabel('Knot')
+# ax[1].set_ylabel('Position')
+# ax[1].grid()
 
-ax[2].plot(problem.X[11:,:].T)
-ax[2].set_xlabel('Knot')
-ax[2].set_ylabel('Velocity')
-ax[2].grid()
-ax[2].hlines(0, 0, 100, color='white')
+# ax[2].plot(problem.X[11:,:].T)
+# ax[2].set_xlabel('Knot')
+# ax[2].set_ylabel('Velocity')
+# ax[2].grid()
+# ax[2].hlines(0, 0, 100, color='white')
 
 plt.show()
 
