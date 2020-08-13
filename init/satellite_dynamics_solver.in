@@ -2,3 +2,4 @@ class SatelliteDynamicsSolver
 
 extend <exotica_core/dynamics_solver>
 Required std::vector<Initializer> Thrusters;
+Optional Eigen::Vector3d Gravity = Eigen::Vector3d::Zero();

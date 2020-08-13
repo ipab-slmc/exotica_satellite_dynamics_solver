@@ -56,7 +56,8 @@ void SatelliteDynamicsSolver::AssignScene(ScenePtr scene_in)
     HIGHLIGHT("nv=" << model_.nv << ", num_controls_=" << num_controls_ << ", num_aux_joints_=" << num_aux_joints_);
 
     // We are in space!
-    model_.gravity.setZero();
+    // model_.gravity.setZero();
+    model_.gravity = pinocchio::Motion(parameters_.Gravity, Eigen::Vector3d::Zero());
 
     // Create Pinocchio data
     pinocchio_data_.reset(new pinocchio::Data(model_));
