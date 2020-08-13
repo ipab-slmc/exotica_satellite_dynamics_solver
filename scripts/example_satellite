@@ -66,11 +66,19 @@ def create_marker(marker_id, scale, pos, orientation, color, marker_type, ns="",
 # solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.arm.xml')
 # solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.apollo.xml')
 # solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.arm.taskmap.xml')
-solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.collision.xml')
-# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.collision.reach.xml')
+# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.collision.xml')
+# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.ssl1300.xml')
+solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.collision.reach.xml')
 problem = solver.get_problem()
 scene = problem.get_scene()
 ds = scene.get_dynamics_solver()
+
+print("nq", ds.nq)
+print("nv", ds.nv)
+print("nu", ds.nu)
+print("ndx", ds.ndx)
+print("problem.num_positions", problem.num_positions)
+
 
 solution = solver.solve()
 
@@ -131,12 +139,10 @@ ax[2].hlines(0, 0, 100, color='white')
 plt.show()
 
 # visualization = exo.VisualizationMoveIt(problem.get_scene())
-# visualization.display_trajectory(
-#     problem.X[:problem.num_positions - 1, :].T
-# )
-
-# publish_trajectory(problem.X[:problem.num_positions - 1, :].T, problem.T * problem.tau, problem)
-# exit(0)
+# visualization_traj = np.zeros((problem.num_positions - 1, problem.T))
+# for t in range(problem.T):
+#     visualization_traj[:,t] = ds.get_position(problem.X[:,t])
+# visualization.display_trajectory(visualization_traj.T)
 
 signal.signal(signal.SIGINT, sig_int_handler)
 marker_array_published = False
@@ -230,8 +236,9 @@ while True:
 
             # u = [100, 0, 0,  0, 0, 0,  0, 0, 0, 0,    10, 0, 0]
             # print(u, t)
-            problem.update(u, t)
-
+            # problem.update(u, t)
+            # scene.update(ds.get_position(problem.X[:,t]))
+            scene.set_model_state(ds.get_position(problem.X[:,t]))
             # print(problem.X[:,t])
 
             if not marker_array_published:
