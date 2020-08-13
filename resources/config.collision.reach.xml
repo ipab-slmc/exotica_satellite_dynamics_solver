@@ -9,17 +9,28 @@
     </FeasibilityDrivenDDPSolver>
 
     <DynamicTimeIndexedShootingProblem Name="satellite">
+        <DerivativeOrder>2</DerivativeOrder>
         <!-- Huber for the thrusters -->
         <!-- <HuberRate>0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1     0   0   0  0</HuberRate>     -->
-        <!-- <ControlCostWeight>1e-4</ControlCostWeight> -->
+        <HuberRate>
+            0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1
+            0.1 0.1 0.1 0.1 0.1 0.1 0.1
+        </HuberRate>
+        <L1Rate>10</L1Rate>
+        <L1IncreaseRate>1.01</L1IncreaseRate>
+        <ControlCostWeight>1e-4</ControlCostWeight>
 
-        <LossType>L2</LossType>
+        <LossType>SmoothL1</LossType>
         <!-- <R_rate>1e-3 1e-3 1e-3 1e-3 1e-3 1e-3 1e-3 1e-3 1e-3 1e-3   1e-1 1e-1 1e-1 1e-1</R_rate> -->
         <R_rate>1e-5</R_rate>
+        <!-- <R>
+            0 0 0 0 0 0 0 0 0 0 0 0 0
+            1 1 1 1 1 1 1
+        </R> -->
 
         <PlanningScene>
             <Scene>
-                <JointGroup>base_with_arm</JointGroup>
+                <!-- <JointGroup>base_with_arm</JointGroup>
                 <URDF>{exotica_satellite_dynamics_solver}/resources/robots/satellite/satellite.urdf</URDF>
                 <SRDF>{exotica_satellite_dynamics_solver}/resources/robots/satellite/satellite.srdf</SRDF>
                 <SetRobotDescriptionRosParams>1</SetRobotDescriptionRosParams>
@@ -39,6 +50,40 @@
                             <ForceInput LinkName="base_to_thruster_top_2" ForceDirection="-1 0 0"/>
                             <ForceInput LinkName="base_to_thruster_top_3" ForceDirection="0 -1 0"/>
                             <ForceInput LinkName="base_to_thruster_top_4" ForceDirection="1 0 0"/>
+                        </Thrusters>
+                        <dt>1</dt>
+                    </SatelliteDynamicsSolver>
+                </DynamicsSolver> -->
+
+                <JointGroup>base_with_arm</JointGroup>
+                <URDF>{ssl_1300_orbital_manipulator_description}/urdf/ssl_1300_orbital_manipulator.urdf</URDF>
+                <SRDF>{ssl_1300_orbital_manipulator_description}/srdf/ssl_1300_orbital_manipulator.srdf</SRDF>
+                
+                <SetRobotDescriptionRosParams>1</SetRobotDescriptionRosParams>
+                <DynamicsSolver>
+                    <SatelliteDynamicsSolver Name="dsolver">
+                        <ControlLimitsLow>
+                            0 0 0 0 0 0 0 0 0 0 0 0 0
+                            -4903.32 -5883.99 -2549.73 -2549.73 -720.2 -720.2 -255.76
+                        </ControlLimitsLow>
+                        <ControlLimitsHigh>
+                            450 20 20 20 20 20 20 20 20 20 20 20 20
+                            4903.32 5883.99 2549.73 2549.73 720.2 720.2 255.76
+                        </ControlLimitsHigh>
+                        <Thrusters>
+                            <ForceInput LinkName="thruster_main_joint" ForceDirection="1 0 0"/>
+                            <ForceInput LinkName="thruster1_joint" ForceDirection="1 0 0"/>
+                            <ForceInput LinkName="thruster2_joint" ForceDirection="1 0 0"/>
+                            <ForceInput LinkName="thruster3_joint" ForceDirection="1 0 0"/>
+                            <ForceInput LinkName="thruster4_joint" ForceDirection="1 0 0"/>
+                            <ForceInput LinkName="thruster5_joint" ForceDirection="1 0 0"/>
+                            <ForceInput LinkName="thruster6_joint" ForceDirection="1 0 0"/>
+                            <ForceInput LinkName="thruster7_joint" ForceDirection="1 0 0"/>
+                            <ForceInput LinkName="thruster8_joint" ForceDirection="1 0 0"/>
+                            <ForceInput LinkName="thruster9_joint" ForceDirection="1 0 0"/>
+                            <ForceInput LinkName="thruster10_joint" ForceDirection="1 0 0"/>
+                            <ForceInput LinkName="thruster11_joint" ForceDirection="1 0 0"/>
+                            <ForceInput LinkName="thruster12_joint" ForceDirection="1 0 0"/>
                         </Thrusters>
                         <dt>1</dt>
                     </SatelliteDynamicsSolver>
@@ -63,9 +108,13 @@
                 <EndEffector>
                     <Frame Link="base_link" Radius="1.3" Group="Satellite" />
 
-                    <Frame Link="arm_end_eff" Radius="0.3" Group="Satellite" />
+                    <!-- <Frame Link="arm_end_eff" Radius="0.3" Group="Satellite" />
                     <Frame Link="arm_elbow" Radius="0.3" Group="Satellite" />
-                    <Frame Link="arm_wrist" Radius="0.3" Group="Satellite" />
+                    <Frame Link="arm_wrist" Radius="0.3" Group="Satellite" /> -->
+
+                    <Frame Link="sia50d_tool0" Radius="0.3" Group="Satellite" />
+                    <Frame Link="sia50d_link_r" Radius="0.3" Group="Satellite" />
+                    <Frame Link="sia50d_link_l" Radius="0.3" Group="Satellite" />
 
                     <Frame Link="Obstacle0" Radius="1" Group="Obstacle0" />
                     <Frame Link="Obstacle1" Radius="1" Group="Obstacle1" />
@@ -78,25 +127,21 @@
 
             <EffPosition Name="Position">
                 <EndEffector>
-                    <Frame Link="arm_end_eff" LinkOffset="0 0 0  1 0 0 0"/>
+                    <!-- <Frame Link="arm_end_eff" LinkOffset="0 0 0  1 0 0 0"/> -->
+                    <Frame Link="sia50d_tool0"/>
                 </EndEffector>
             </EffPosition>
-            <JointLimit Name="JointLimit">
-                <SafePercentage>1</SafePercentage>
-            </JointLimit>
+            <JointLimit Name="JointLimit" SafePercentage="0.1"/>
         </Maps>
 
         <Cost>
-            <Task Task="Position" Goal="7 7 5" Rho="
-            
+            <Task Task="Position" Goal="10 10 10" Rho="
             0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
             0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-            0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.0
-        
+            0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 100.0
         "/>
             <Task Task="JointLimit" Rho="1e-6"/>
-            <Task Task="collision" Rho="1e-2"/>
-            <Task Task="JointLimit" Rho="1e-6"/>
+            <!-- <Task Task="collision" Rho="1e-2"/> -->
         </Cost>
 
         <T>300</T>
@@ -104,26 +149,27 @@
 
         <Q_rate>0</Q_rate>
         <Q>
-            0 0 0  1 1 1 
-            1 1 1 1
-
-            0 0 0   0 0 0
-            0 0 0 0
+            0 0 0 0 0 0
+            0 0 0 0 0 0 0
+            1 1 1 1 1 1
+            1 1 1 1 1 1 1
         </Q>
         <Qf>
-            0 0 0  0 0 0
-            1e-6 1e-6 1e-6 1e-6
-
-            1 1 1   1 1 1
-            1 1 1 1
+            0 0 0 0 0 0
+            0 0 0 0 0 0 0
+            1 1 1 1 1 1
+            1 1 1 1 1 1 1
         </Qf>
 
-        <Qf_rate>10</Qf_rate>
+        <Qf_rate>20</Qf_rate>
 
         <!-- <StartState> 0 0 0     0 0 0 1     0 0 0    0 0 0      0   0    0    0      0 0 0 0</StartState> -->
         <!-- <GoalState>  0 0 5     0 0 0 1     0 0 0    0 0 0      1.5   1.5  1.5  1.5      0 0 0 0</GoalState> -->
 
-        <StartState> 2 2 2        0 0 0 1       0     0    0     0          0 0 0  0 0 0  0 0 0 0</StartState>
-        <GoalState>  0 0 0        0 0 0 1       0     0    0     0          0 0 0  0 0 0  0 0 0 0</GoalState>
+        <!-- <StartState> 2 2 2        0 0 0 1       0     0    0     0          0 0 0  0 0 0  0 0 0 0</StartState>
+        <GoalState>  0 0 0        0 0 0 1       0     0    0     0          0 0 0  0 0 0  0 0 0 0</GoalState> -->
+
+        <StartState> 0 0 0        0 0 0 1       0     0    0     0          0 0 0  0 0 0  0 0 0 0 0 0 0 0 0 0</StartState>
+        <GoalState>  0 0 0        0 0 0 1       0     0    0     0          0 0 0  0 0 0  0 0 0 0 0 0 0 0 0 0</GoalState>
     </DynamicTimeIndexedShootingProblem>
 </PlannerDemoConfig>
