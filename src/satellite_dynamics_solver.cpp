@@ -69,7 +69,7 @@ void SatelliteDynamicsSolver::AssignScene(ScenePtr scene_in)
     {
         ForceInputInitializer force_init(parameters_.Thrusters[i]);
         auto frame_id = model_.getFrameId(force_init.LinkName);
-        if (frame_id > model_.nframes) ThrowPretty("Frame '" << force_init.LinkName << "' does not exist.");
+        if (static_cast<int>(frame_id) > model_.nframes) ThrowPretty("Frame '" << force_init.LinkName << "' does not exist.");
         thruster_frame_ids_.emplace_back(frame_id);
         Vector6 force_direction = Vector6::Zero();
         force_direction.head<3>() = force_init.ForceDirection;
