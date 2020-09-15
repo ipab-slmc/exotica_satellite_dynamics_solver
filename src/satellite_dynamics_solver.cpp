@@ -273,8 +273,8 @@ void SatelliteDynamicsSolver::Integrate(const StateVector& x_in, const StateVect
         case Integrator::SymplecticEuler:
         {
             Eigen::VectorXd dx_new(get_num_state_derivative());
-            dx_new.head(num_velocities_).noalias() = dt_ * v + (dt_ * dt_) * a;  // v * dt + a * dt^2
-            dx_new.tail(num_velocities_).noalias() = dt_ * a;                    // a * dt
+            dx_new.head(num_velocities_).noalias() = dt * v + (dt * dt) * a;  // v * dt + a * dt^2
+            dx_new.tail(num_velocities_).noalias() = dt * a;                  // a * dt
 
             pinocchio::integrate(model_, q, dx_new.head(num_velocities_), xout.head(num_positions_));
             xout.tail(num_velocities_) = v + dx_new.tail(num_velocities_);
