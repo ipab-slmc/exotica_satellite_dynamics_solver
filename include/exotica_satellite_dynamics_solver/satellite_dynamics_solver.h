@@ -92,7 +92,6 @@ private:
     Eigen::MatrixXd dtau_du_;
 
     void UpdateExternalForceInputFromThrusters(const ControlVector& u);
-    StateVector SimulateOneStep(const StateVector& x, const ControlVector& u) override;
 };
 }  // namespace exotica
 

@@ -133,7 +133,7 @@ Eigen::VectorXd SatelliteDynamicsSolver::f(const StateVector& x, const ControlVe
     UpdateExternalForceInputFromThrusters(u.head(num_thrusters_));
     tau_.tail(num_aux_joints_) = u.segment(num_thrusters_, num_aux_joints_);
 
-    pinocchio::aba(model_, *pinocchio_data_, x.head(num_positions_), x.tail(num_velocities_), tau_, fext_);
+    pinocchio::aba(model_, *pinocchio_data_.get(), x.head(num_positions_), x.tail(num_velocities_), tau_, fext_);
     xdot_analytic_.head(num_velocities_) = x.tail(num_velocities_);
     xdot_analytic_.tail(num_velocities_) = pinocchio_data_->ddq;
 
@@ -246,16 +246,17 @@ Hessian SatelliteDynamicsSolver::ddStateDelta(const StateVector& x_1, const Stat
     return ddStateDelta;
 }
 
-void SatelliteDynamicsSolver::Integrate(const StateVector& x, const StateVector& dx, const double dt, StateVector& xout)
+void SatelliteDynamicsSolver::Integrate(const StateVector& x_in, const StateVector& dx, const double dt, StateVector& xout)
 {
-    Eigen::VectorXd x_normalized = x;
+    Eigen::VectorXd x = x_in;
 
-    // It is then safer to re-normalize
-    typedef Eigen::Map<Eigen::Quaterniond> QuaternionMap_t;
-    QuaternionMap_t res_quat(x_normalized.template segment<4>(3).data());
-    pinocchio::quaternion::firstOrderNormalize(res_quat);
-    // assert(pinocchio::quaternion::isNormalized(res_quat, PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE));
-    // NormalizeQuaternionInConfigurationVector(x_normalized);
+    // pinocchio::quaternion::firstOrderNormalize(res_quat);
+    assert(pinocchio::quaternion::isNormalized(Eigen::Map<Eigen::Quaterniond>(x.template segment<4>(3).data()), PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE));
+    NormalizeQuaternionInConfigurationVector(x);
+
+    Eigen::VectorBlock<Eigen::VectorXd> q = x.head(num_positions_);
+    Eigen::VectorBlock<Eigen::VectorXd> v = x.tail(num_velocities_);
+    const Eigen::VectorBlock<const Eigen::VectorXd> a = dx.tail(num_velocities_);
 
     switch (integrator_)
     {
@@ -263,31 +264,26 @@ void SatelliteDynamicsSolver::Integrate(const StateVector& x, const StateVector&
         case Integrator::RK1:
         {
             Eigen::VectorXd dx_times_dt = dt * dx;
-            pinocchio::integrate(model_, x_normalized.head(num_positions_), dx_times_dt.head(num_velocities_), xout.head(num_positions_));
-            xout.tail(num_velocities_) = x.tail(num_velocities_) + dx_times_dt.tail(num_velocities_);
+            pinocchio::integrate(model_, q, dx_times_dt.head(num_velocities_), xout.head(num_positions_));
+            xout.tail(num_velocities_) = v + dx_times_dt.tail(num_velocities_);
         }
         break;
 
         // Semi-implicit Euler
         case Integrator::SymplecticEuler:
         {
-            Eigen::VectorXd dx_times_dt = dt * dx;
-            xout.tail(num_velocities_) = x.tail(num_velocities_) + dx_times_dt.tail(num_velocities_);
-            pinocchio::integrate(model_, x_normalized.head(num_positions_), xout.tail(num_velocities_), xout.head(num_positions_));
+            Eigen::VectorXd dx_new(get_num_state_derivative());
+            dx_new.head(num_velocities_).noalias() = dt_ * v + (dt_ * dt_) * a;  // v * dt + a * dt^2
+            dx_new.tail(num_velocities_).noalias() = dt_ * a;                    // a * dt
+
+            pinocchio::integrate(model_, q, dx_new.head(num_velocities_), xout.head(num_positions_));
+            xout.tail(num_velocities_) = v + dx_new.tail(num_velocities_);
         }
         break;
 
         default:
             ThrowPretty("Not implemented!");
     };
-}
-
-Eigen::VectorXd SatelliteDynamicsSolver::SimulateOneStep(const StateVector& x, const ControlVector& u)
-{
-    Eigen::VectorXd xout(num_positions_ + num_velocities_);
-    Eigen::VectorXd dx = f(x, u);
-    Integrate(x, dx, dt_, xout);
-    return xout;
 }
 
 Eigen::MatrixXd SatelliteDynamicsSolver::fx(const StateVector& x, const ControlVector& u)
@@ -297,7 +293,7 @@ Eigen::MatrixXd SatelliteDynamicsSolver::fx(const StateVector& x, const ControlV
 
     // Four quadrants should be: 0, Identity, ddq_dq, ddq_dv
     // 0 and Identity are set during initialisation. Here, we pass references to ddq_dq, ddq_dv to the algorithm.
-    pinocchio::computeABADerivatives(model_, *pinocchio_data_,
+    pinocchio::computeABADerivatives(model_, *pinocchio_data_.get(),
                                      x.head(num_positions_),
                                      x.tail(num_velocities_),
                                      tau_,
@@ -314,7 +310,7 @@ Eigen::MatrixXd SatelliteDynamicsSolver::fu(const StateVector& x, const ControlV
     UpdateExternalForceInputFromThrusters(u.head(num_thrusters_));
     tau_.tail(num_aux_joints_) = u.segment(num_thrusters_, num_aux_joints_);
 
-    pinocchio::computeABADerivatives(model_, *pinocchio_data_, x.head(num_positions_), x.tail(num_velocities_), tau_, fext_);
+    pinocchio::computeABADerivatives(model_, *pinocchio_data_.get(), x.head(num_positions_), x.tail(num_velocities_), tau_, fext_);
 
     // da/du = daba/dtau * dtau/du + daba/dfext * dfext/du
     //       = M^-1      * dtau/du + M^-1 J^T   * dfext/du
@@ -337,16 +333,19 @@ void SatelliteDynamicsSolver::ComputeDerivatives(const StateVector& x_in, const 
     Eigen::VectorXd x = x_in;
     NormalizeQuaternionInConfigurationVector(x);
 
+    Eigen::VectorBlock<Eigen::VectorXd> q = x.head(num_positions_);  // we'd want this to be Eigen::VectorBlock
+    Eigen::VectorBlock<Eigen::VectorXd> v = x.tail(num_velocities_);
+
     // Four quadrants should be: 0, Identity, ddq_dq, ddq_dv
     // 0 and Identity are set during initialisation. Here, we pass references to ddq_dq, ddq_dv to the algorithm.
-    pinocchio::computeABADerivatives(model_, *pinocchio_data_,
-                                     x.head(num_positions_),
-                                     x.tail(num_velocities_),
+    pinocchio::computeABADerivatives(model_, *pinocchio_data_.get(),
+                                     q,
+                                     v,
                                      tau_,
                                      fext_,
-                                     fx_.block(num_velocities_, 0, num_velocities_, num_velocities_),
-                                     fx_.block(num_velocities_, num_velocities_, num_velocities_, num_velocities_),
-                                     Minv_);
+                                     fx_.block(num_velocities_, 0, num_velocities_, num_velocities_),                // daba_dq
+                                     fx_.block(num_velocities_, num_velocities_, num_velocities_, num_velocities_),  // daba_dv
+                                     Minv_);                                                                         // daba_dtau
 
     fu_.bottomRows(num_velocities_).setZero();
 
@@ -369,31 +368,29 @@ void SatelliteDynamicsSolver::ComputeDerivatives(const StateVector& x_in, const 
         {
             Fx_.bottomRows(num_velocities_).noalias() = dt_ * da_dx;
             Fx_.topRightCorner(num_velocities_, num_velocities_).diagonal().array() += dt_;
-            pinocchio::dIntegrateTransport(model_, x.head(num_positions_), x.tail(num_velocities_), Fx_.topRows(num_velocities_), pinocchio::ARG1);
-            pinocchio::dIntegrate(model_, x.head(num_positions_), x.tail(num_velocities_), Fx_.topLeftCorner(num_velocities_, num_velocities_), pinocchio::ARG0, pinocchio::ADDTO);
+            pinocchio::dIntegrateTransport(model_, q, v, Fx_.topRows(num_velocities_), pinocchio::ARG1);
+            pinocchio::dIntegrate(model_, q, v, Fx_.topLeftCorner(num_velocities_, num_velocities_), pinocchio::ARG0, pinocchio::ADDTO);
             Fx_.bottomRightCorner(num_velocities_, num_velocities_).diagonal().array() += 1.0;
 
             Fu_.bottomRows(num_velocities_).noalias() = dt_ * da_du;
-            pinocchio::dIntegrateTransport(model_, x.head(num_positions_), x.tail(num_velocities_), Fu_.topRows(num_velocities_), pinocchio::ARG1);
+            pinocchio::dIntegrateTransport(model_, q, v, Fu_.topRows(num_velocities_), pinocchio::ARG1);
         }
         break;
         // Semi-implicit Euler
         case Integrator::SymplecticEuler:
         {
-            // pinocchio::aba(model_, *pinocchio_data_, x.head(num_positions_), x.tail(num_velocities_), u);  // Compute ddq
-            const Eigen::VectorXd& a = pinocchio_data_->ddq;
-            Eigen::VectorXd v = x.tail(num_velocities_) + dt_ * a;
+            Eigen::VectorXd dx_v = dt_ * x.tail(num_velocities_) + dt_ * dt_ * pinocchio_data_->ddq;
 
             Fx_.topRows(num_velocities_).noalias() = dt_ * dt_ * da_dx;
             Fx_.bottomRows(num_velocities_).noalias() = dt_ * da_dx;
             Fx_.topRightCorner(num_velocities_, num_velocities_).diagonal().array() += dt_;
-            pinocchio::dIntegrateTransport(model_, x.head(num_positions_), v, Fx_.topRows(num_velocities_), pinocchio::ARG1);
-            pinocchio::dIntegrate(model_, x.head(num_positions_), v, Fx_.topLeftCorner(num_velocities_, num_velocities_), pinocchio::ARG0, pinocchio::ADDTO);
+            pinocchio::dIntegrateTransport(model_, x.head(num_positions_), dx_v, Fx_.topRows(num_velocities_), pinocchio::ARG1);
+            pinocchio::dIntegrate(model_, x.head(num_positions_), dx_v, Fx_.topLeftCorner(num_velocities_, num_velocities_), pinocchio::ARG0, pinocchio::ADDTO);
             Fx_.bottomRightCorner(num_velocities_, num_velocities_).diagonal().array() += 1.0;
 
             Fu_.topRows(num_velocities_).noalias() = dt_ * dt_ * da_du;
             Fu_.bottomRows(num_velocities_).noalias() = dt_ * da_du;
-            pinocchio::dIntegrateTransport(model_, x.head(num_positions_), v, Fu_.topRows(num_velocities_), pinocchio::ARG1);  // ARG1 = transports w.r.t. v
+            pinocchio::dIntegrateTransport(model_, x.head(num_positions_), dx_v, Fu_.topRows(num_velocities_), pinocchio::ARG1);  // ARG1 = transports w.r.t. v
         }
         break;
         default:
