@@ -1,20 +1,23 @@
 <?xml version="1.0" ?>
 <PlannerDemoConfig>
-    <FeasibilityDrivenDDPSolver Name="FDDP">
+    <!-- <FeasibilityDrivenDDPSolver Name="FDDP">
         <Debug>1</Debug>
-        <MaxIterations>150</MaxIterations>
+        <MaxIterations>500</MaxIterations>
         <ClampControlsInForwardPass>1</ClampControlsInForwardPass>
         <GradientTolerance>1e-5</GradientTolerance>
-    </FeasibilityDrivenDDPSolver>
+        <RegularizationRate>0.1</RegularizationRate>
+    </FeasibilityDrivenDDPSolver> -->
 
     <!-- Does not work... -->
-    <!-- <ControlLimitedFeasibilityDrivenDDPSolver Name="FDDP">
+    <ControlLimitedFeasibilityDrivenDDPSolver Name="FDDP">
         <Debug>1</Debug>
-        <MaxIterations>150</MaxIterations>
+        <MaxIterations>500</MaxIterations>
+        <UseNewBoxQP>1</UseNewBoxQP>
+        <BoxQPUsePolynomialLinesearch>1</BoxQPUsePolynomialLinesearch>
         <BoxQPUseCholeskyFactorization>0</BoxQPUseCholeskyFactorization>
         <GradientTolerance>1e-5</GradientTolerance>
         <RegularizationRate>0.1</RegularizationRate>
-    </ControlLimitedFeasibilityDrivenDDPSolver> -->
+    </ControlLimitedFeasibilityDrivenDDPSolver>
 
     <DynamicTimeIndexedShootingProblem Name="satellite">
         <!-- Turning second order off also causes Cholesky to trip up. For real. -->

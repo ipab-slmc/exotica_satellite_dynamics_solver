@@ -114,6 +114,32 @@ plt.xlim(0)
 plt.grid()
 plt.tight_layout()
 
+# Cost per timestep
+tasks = problem.cost.task_maps
+cost_by_task_and_timestep = {}
+for task in tasks:
+    cost_by_task_and_timestep[task] = np.zeros((problem.T,))
+for t in range(problem.T):
+    for task in tasks:
+        rho = problem.cost.get_rho(task, t)
+        error = problem.cost.get_task_error(task, t)
+        cost_by_task_and_timestep[task][t] = rho * np.dot(error, error.T)
+        #print(task, t, rho, error, cost_by_task_and_timestep[task][t])
+cost_by_task_and_timestep['Control'] = np.zeros((problem.T,))
+for t in range(problem.T-1):
+    cost_by_task_and_timestep['Control'][t] = problem.get_control_cost(t)
+
+fig = plt.figure()
+fig.set_dpi(300)
+for task in cost_by_task_and_timestep:
+    plt.plot(cost_by_task_and_timestep[task], label=task)
+plt.tight_layout()
+plt.xlim(0)
+plt.ylabel('Cost')
+plt.xlabel('Timestep')
+plt.yscale('log')
+plt.legend()
+
 # fig, ax = plt.subplots(5, 3)
 # ax = ax.flatten()
 

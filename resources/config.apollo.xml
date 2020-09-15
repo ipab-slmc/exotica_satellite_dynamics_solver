@@ -4,13 +4,15 @@
         <Debug>1</Debug>
         <MaxIterations>100</MaxIterations>
         <FunctionTolerance>1e-10</FunctionTolerance>
+        <RegularizationRate>0.1</RegularizationRate>
         <ClampControlsInForwardPass>1</ClampControlsInForwardPass>
     </FeasibilityDrivenDDPSolver> -->
 
     <ControlLimitedFeasibilityDrivenDDPSolver Name="BoxFDDP">
         <Debug>1</Debug>
         <MaxIterations>500</MaxIterations>
-        <UseNewBoxQP>0</UseNewBoxQP> <!-- Weird memory bug in NewBoxQP with L1 ?! Old BoxQP works just fine -->
+        <RegularizationRate>0.1</RegularizationRate>
+        <UseNewBoxQP>1</UseNewBoxQP>
         <BoxQPUseCholeskyFactorization>0</BoxQPUseCholeskyFactorization>
     </ControlLimitedFeasibilityDrivenDDPSolver>
 
@@ -42,7 +44,7 @@
         <MaxL1Rate>1e3</MaxL1Rate>
 
         <LossType>L2</LossType>        
-        <R_rate>1e-1</R_rate>
+        <R_rate>1</R_rate>
 
         <ControlCostWeight>0.01</ControlCostWeight>
 
