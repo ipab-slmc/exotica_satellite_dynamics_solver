@@ -21,13 +21,13 @@
         <color rgba="1 1 1 1"/>
     </material>
 
-    <xacro:property name="base_mass" value="5190" />
+    <xacro:property name="base_mass" value="5000" />
     <xacro:property name="base_w" value="4" />
     <xacro:property name="base_l" value="4" />
     <xacro:property name="base_h" value="11" />
     <xacro:property name="arm_segment_length" value="2" />
     <xacro:property name="arm_segment_mass" value="1" />
-    <xacro:property name="show_outline" value="1" />
+    <xacro:property name="show_outline" value="0" />
 
     <!-- <link name="base_dummy"></link> -->
 
@@ -39,13 +39,15 @@
             <inertia ixx="${base_mass * 2.5 * 2.5 * 2/5}" ixy="0.0" ixz="0.0" iyy="${base_mass * 2.5 * 2.5 * 2/5}" iyz="0.0" izz="${base_mass * 4 * 4 * 2/5}" />
         </inertial>
 
-        <!-- <visual>
+        <visual>
             <origin rpy="0 0 0" xyz="0 0 0"/>
             <geometry>
 
-                <mesh filename="package://exotica_satellite_dynamics_solver/resources/robots/satellite/satellite_base.dae" scale="1 1 1"/>
+                <!-- <mesh filename="package://exotica_satellite_dynamics_solver/resources/robots/satellite/satellite_base.dae" scale="1 1 1"/> -->
+                
+          <mesh filename="package://ssl_1300_satellite_description/meshes/LORAL-1300MANIP.dae" />
             </geometry>
-        </visual> -->
+        </visual>
 
         <xacro:if value="${show_outline == 1}">
             <visual>

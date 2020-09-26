@@ -25,8 +25,8 @@
     <xacro:property name="base_w" value="4" />
     <xacro:property name="base_l" value="4" />
     <xacro:property name="base_h" value="11" />
-    <xacro:property name="arm_segment_length" value="3" />
-    <xacro:property name="arm_segment_mass" value="136" />
+    <xacro:property name="arm_segment_length" value="2" />
+    <xacro:property name="arm_segment_mass" value="1" />
     <xacro:property name="show_outline" value="0" />
 
     <!-- <link name="base_dummy"></link> -->
@@ -40,10 +40,12 @@
         </inertial>
 
         <visual>
-            <origin rpy="0 0 1.57" xyz="0.1 0 -0.4"/>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
             <geometry>
 
-                <mesh filename="package://exotica_satellite_dynamics_solver/resources/robots/satellite/satellite_base2.dae" scale="1 1 1"/>
+                <!-- <mesh filename="package://exotica_satellite_dynamics_solver/resources/robots/satellite/satellite_base.dae" scale="1 1 1"/> -->
+                
+          <mesh filename="package://ssl_1300_satellite_description/meshes/LORAL-1300MANIP.dae" />
             </geometry>
         </visual>
 
@@ -258,133 +260,16 @@
     </joint>
 
 
-    <!-- arm -->
-    <link name="arm_base">
-        <visual>
-            <geometry>
-                <cylinder length="0.5" radius="0.1"/>
-            </geometry>
 
-            <origin rpy="0 0 0" xyz="0 0 0"/>
-            <material name="green"/>
-        </visual>
 
-        <inertial>
-            <mass value="1e-3"/>
-            <origin xyz="0 0 0"/>
-            <inertia ixx="1e-3" ixy="0.0" ixz="0.0" iyy="1e-3" iyz="0.0" izz="1e-3"/>
-        </inertial>
-    </link>
+    <xacro:include filename="$(find ssl_1300_orbital_manipulator_description)/urdf/sia50_macro_with_approximate_inertia.xacro" />
 
-    <link name="arm_shoulder">
-        <visual>
-            <geometry>
-                <cylinder length="${arm_segment_length}" radius="0.1"/>
-            </geometry>
+    <xacro:motoman_sia50 prefix="sia50d_"/>
 
-            <origin rpy="0 0 0" xyz="0 0 ${arm_segment_length/2}"/>
-            <material name="green"/>
-        </visual>
-
-        <inertial>
-            <mass value="${arm_segment_mass}"/>
-            <origin rpy="0 0 0" xyz="0 0 1"/>
-            <inertia ixx="${1/3 * arm_segment_mass * arm_segment_length * arm_segment_length}" ixy="0.0" ixz="0.0" iyy="1e-3" iyz="0.0" izz="${1/3 * arm_segment_mass * arm_segment_length * arm_segment_length}" />
-        </inertial>
-    </link>
-
-    <link name="arm_elbow">
-        <visual>
-            <geometry>
-                <cylinder length="${arm_segment_length}" radius="0.1"/>
-            </geometry>
-
-            <origin rpy="0 0 0" xyz="0.1 0 -${arm_segment_length/2}"/>
-            <material name="green"/>
-        </visual>
-
-        <inertial>
-            <mass value="${arm_segment_mass}"/>
-            <origin rpy="0 0 0" xyz="0 0 1"/>
-            <inertia ixx="${1/3 * arm_segment_mass * arm_segment_length * arm_segment_length}" ixy="0.0" ixz="0.0" iyy="1e-3" iyz="0.0" izz="${1/3 * arm_segment_mass * arm_segment_length * arm_segment_length}" />
-        </inertial>
-    </link>
-
-    <link name="arm_wrist">
-        <visual>
-            <geometry>
-                <cylinder length="${arm_segment_length}" radius="0.1"/>
-            </geometry>
-
-            <origin rpy="0 0 0" xyz="0.2 0 ${arm_segment_length/2}"/>
-            <material name="green"/>
-        </visual>
-
-        <inertial>
-            <mass value="${arm_segment_mass}"/>
-            <origin rpy="0 0 0" xyz="0 0 1"/>
-            <inertia ixx="${1/3 * arm_segment_mass * arm_segment_length * arm_segment_length}" ixy="0.0" ixz="0.0" iyy="1e-3" iyz="0.0" izz="${1/3 * arm_segment_mass * arm_segment_length * arm_segment_length}" />
-        </inertial>
-    </link>
-
-    <link name="arm_end_eff">
-        <visual>
-            <geometry>
-                <cylinder length="0.2" radius="0.1"/>
-            </geometry>
-
-            <origin rpy="0 0 0" xyz="0.2 0 0"/>
-            <material name="yellow"/>
-        </visual>
-
-        <inertial>
-            <mass value="1e-5"/>
-            <origin rpy="0 0 0" xyz="0 0 1"/>
-            <inertia ixx="1e-3" ixy="0.0" ixz="0.0" iyy="1e-3" iyz="0.0" izz="1e-3" />
-        </inertial>
-    </link>
-
-    <joint name="base_to_arm" type="revolute">
+    <joint name="satellite_to_arm_joint" type="fixed">
+        <origin xyz="0 1.3 0" rpy="-1.57079632679 0 0"/>
         <parent link="base_link"/>
-        <child link="arm_base"/>
-
-        <limit effort="1.0" lower="-1.57" upper="1.57" velocity="0.5"/>
-        <axis xyz="1 0 0"/>
-        <origin xyz="1.25 0 -${arm_segment_length/2}"/>
+        <child link="sia50d_base_link"/>
     </joint>
 
-
-    <joint name="arm_base_to_shoulder" type="revolute">
-        <parent link="arm_base"/>
-        <child link="arm_shoulder"/>
-
-        <limit effort="1.0" lower="0" upper="3.14" velocity="0.5"/>
-        <axis xyz="0 1 0"/>
-        <origin xyz="0 0 0"/>
-    </joint>
-
-    <joint name="arm_shoulder_to_elbow" type="revolute">
-        <parent link="arm_shoulder"/>
-        <child link="arm_elbow"/>
-
-        <limit effort="1.0" lower="0" upper="3.14" velocity="0.5"/>
-        <axis xyz="0 -1 0"/>
-        <origin xyz="0 0 ${arm_segment_length}"/>
-    </joint>
-
-    <joint name="arm_elbow_to_wrist" type="revolute">
-        <parent link="arm_elbow"/>
-        <child link="arm_wrist"/>
-
-        <limit effort="1.0" lower="-300" upper="300" velocity="0.5"/>
-        <axis xyz="-1 0 0"/>
-        <origin xyz="0 0 -${arm_segment_length}"/>
-    </joint>
-    
-    <joint name="arm_wrist_to_end_eff" type="fixed">
-        <parent link="arm_wrist"/>
-        <child link="arm_end_eff"/>
-
-        <origin xyz="0 0 ${arm_segment_length + 0.1}"/>
-    </joint>
 </robot>
