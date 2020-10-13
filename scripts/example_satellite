@@ -104,18 +104,19 @@ print("Final state:", problem.X[:,-1])
 costs = problem.get_cost_evolution()
 save_result and np.savez('satellite_results', times=costs[0], costs=costs[1], X=problem.X, U=problem.U, solution=solution)
 
-fig_convergence = plt.figure()
+# '''
+fig_convergence = plt.figure(1)
 fig_convergence.set_dpi(300)
 plt.plot(costs[1], label='Total Cost')
 plt.plot(np.array(costs[1])-np.array(solver.control_cost_evolution), label='Task')
 plt.plot(solver.control_cost_evolution, label='Control')
-plt.xlabel('Iteration')
-plt.ylabel('Cost')
-plt.yscale('log')
+# plt.tight_layout()
 plt.legend()
 plt.xlim(0)
 plt.grid()
-plt.tight_layout()
+plt.xlabel('Iteration')
+plt.ylabel('Cost')
+plt.yscale('log')
 
 # Cost per timestep
 tasks = problem.cost.task_maps
@@ -132,11 +133,11 @@ cost_by_task_and_timestep['Control'] = np.zeros((problem.T,))
 for t in range(problem.T-1):
     cost_by_task_and_timestep['Control'][t] = problem.get_control_cost(t)
 
-fig = plt.figure()
-fig.set_dpi(300)
+fig_cost = plt.figure(2)
+fig_cost.set_dpi(300)
 for task in cost_by_task_and_timestep:
     plt.plot(cost_by_task_and_timestep[task], label=task)
-plt.tight_layout()
+# plt.tight_layout()
 plt.xlim(0)
 plt.ylabel('Cost')
 plt.xlabel('Timestep')
@@ -180,6 +181,7 @@ times = times[1:]
 # ax[2].hlines(0, 0, 100, color='white')
 
 plt.show()
+# '''
 
 # visualization = exo.VisualizationMoveIt(problem.get_scene())
 # visualization_traj = np.zeros((problem.num_positions - 1, problem.T))
