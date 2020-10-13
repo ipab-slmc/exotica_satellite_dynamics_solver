@@ -74,11 +74,11 @@ def create_marker(marker_id, scale, pos, orientation, color, marker_type, ns="",
 
 # solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.xml')
 # solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.arm.xml')
-# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.apollo.xml')
+solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.apollo.xml')
 # solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.arm.taskmap.xml')
 # solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.collision.xml')
 # solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.ssl1300.xml')
-solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.collision.reach.xml')
+# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.collision.reach.xml')
 problem = solver.get_problem()
 scene = problem.get_scene()
 ds = scene.get_dynamics_solver()
