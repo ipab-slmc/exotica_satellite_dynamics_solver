@@ -76,8 +76,9 @@ def create_marker(marker_id, scale, pos, orientation, color, marker_type, ns="",
 # solver_l2 = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.apollo.l2.xml')
 # solution_l2 = solver_l2.solve()
 
-# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.apollo.xml')
-solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.com.track.xml')
+solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.apollo.xml')
+# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.com.track.xml')
+# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.com.track.2.xml')
 
 problem = solver.get_problem()
 scene = problem.get_scene()
@@ -291,8 +292,16 @@ while True:
             # print(u, t)
             # problem.update(u, t)
             # scene.update(ds.get_position(problem.X[:,t]))
-            scene.set_model_state(ds.get_position(problem.X[:,t]))
-            # print(problem.X[:,t])
+
+            # fix quaternion issues
+            _x = np.copy(problem.X[:, t])
+            for i in range(3, 7):
+                if np.abs(_x[i]) < 1e-3:
+                    _x[i] = 0
+
+            # scene.set_model_state(ds.get_position(problem.X[:,t]))
+            scene.set_model_state(ds.get_position(_x))
+            print(problem.X[:,t])
 
             if not marker_array_published:
                 p = Point()
@@ -308,7 +317,7 @@ while True:
             update_end = time()
             # if problem.tau > update_end - update_start:
                 # sleep(problem.tau - (update_end - update_start))
-            sleep(0.02)
+            sleep(0.01)
         e = time()
         sleep(1)
         print("Time taken to roll-out:", e-s)

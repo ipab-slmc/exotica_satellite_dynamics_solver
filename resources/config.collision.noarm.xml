@@ -1,0 +1,121 @@
+<?xml version="1.0" ?>
+<PlannerDemoConfig>
+    <FeasibilityDrivenDDPSolver Name="FDDP">
+        <Debug>1</Debug>
+        <MaxIterations>100</MaxIterations>
+        <UseNewBoxQP>1</UseNewBoxQP>
+        <ClampControlsInForwardPass>1</ClampControlsInForwardPass>
+        <BoxQPUseCholeskyFactorization>1</BoxQPUseCholeskyFactorization>
+        <DerivativeOrder>1</DerivativeOrder>
+    </FeasibilityDrivenDDPSolver>
+
+    <DynamicTimeIndexedShootingProblem Name="satellite">
+        <!-- Huber for the thrusters -->
+        <!-- <HuberRate>0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1     0   0   0  0</HuberRate>     -->
+        <!-- <ControlCostWeight>1e-4</ControlCostWeight> -->
+
+        <!-- <R_rate>1e-3 1e-3 1e-3 1e-3 1e-3 1e-3 1e-3 1e-3 1e-3 1e-3   1e-1 1e-1 1e-1 1e-1</R_rate> -->
+
+        <LossType>L2</LossType>
+        <!-- <R_rate>0 0 0   0 0 0   0 0 0  0   1e-5 1e-5 1e-5 1e-5</R_rate> -->
+        <R_rate>0</R_rate>
+        <!-- <HuberRate>1 1 1   1 1 1   1 1 1  1   0 0 0 0</HuberRate> -->
+        <!-- <HuberRate>0.1</HuberRate> -->
+        <ControlCostWeight>1</ControlCostWeight>
+
+        <PlanningScene>
+            <Scene>
+                <JointGroup>base_with_arm</JointGroup>
+                <URDF>{exotica_satellite_dynamics_solver}/resources/robots/satellite/satellite.urdf</URDF>
+                <SRDF>{exotica_satellite_dynamics_solver}/resources/robots/satellite/satellite.srdf</SRDF>
+                <SetRobotDescriptionRosParams>1</SetRobotDescriptionRosParams>
+                <DynamicsSolver>
+                    <SatelliteDynamicsSolver Name="dsolver">
+                        <ControlLimitsLow>0 0 0 0 0 0 0 0 0 0    -50 -50 -50 -50</ControlLimitsLow>
+                        <ControlLimitsHigh>440 440 440   440 440 440   440 440 440 440  50 50 50 50</ControlLimitsHigh>
+                        <dt>1</dt>
+                    </SatelliteDynamicsSolver>
+                </DynamicsSolver>
+
+                <Links>
+                    <Link Name="Obstacle0" Transform="5   5   5"/>
+                    <Link Name="Obstacle1" Transform="6.5 3.5 5"/>
+                    <Link Name="Obstacle2" Transform="8   2   5"/>
+                    <Link Name="Obstacle3" Transform="3.5 6.5 5"/>
+                    <Link Name="Obstacle4" Transform="2   8   5"/>
+                    <!-- <Link Name="Obstacle5" Transform="5 5 5"/> -->
+                </Links>
+            </Scene>
+        </PlanningScene>
+
+        <!-- end-effector task maps -->
+        <Maps>
+            <SphereCollision Name="Collision">
+                <Debug>1</Debug>
+                <Precision>0.1</Precision>
+                <ReferenceFrame>exotica/world_frame</ReferenceFrame>
+                <EndEffector>
+                    <Frame Link="base_link" Radius="1.5" Group="Satellite" />
+                    
+                    <!-- <Frame Link="arm_end_eff" Radius="0.5" Group="Satellite" />
+                    <Frame Link="arm_elbow" Radius="0.5" Group="Satellite" />
+                    <Frame Link="arm_wrist" Radius="0.5" Group="Satellite" /> -->
+
+                    <Frame Link="Obstacle0" Radius="0.5" Group="Obstacle0" />
+                    <Frame Link="Obstacle1" Radius="0.5" Group="Obstacle1" />
+                    <Frame Link="Obstacle2" Radius="0.5" Group="Obstacle2" />
+                    <Frame Link="Obstacle3" Radius="0.5" Group="Obstacle3" />
+                    <Frame Link="Obstacle4" Radius="0.5" Group="Obstacle4" />
+                    <!-- <Frame Link="Obstacle5" Radius="1" Group="Obstacle0" /> -->
+                </EndEffector>
+            </SphereCollision>
+
+
+            <EffPosition Name="Position">
+                <EndEffector>
+                    <Frame Link="arm_end_eff" LinkOffset="0 0 0  1 0 0 0"/>
+                </EndEffector>
+            </EffPosition>
+            <JointLimit Name="JointLimit">
+                <SafePercentage>1</SafePercentage>
+            </JointLimit>
+        </Maps>
+
+        <Cost>
+            <!-- <Task Task="Position" Goal="9 9 9" Rho="
+            
+            0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.0
+        
+        "/> -->
+            <!-- <Task Task="JointLimit" Rho="1e-6"/> -->
+            <Task Task="Collision" Rho="1e-3"/>
+        </Cost>
+
+        <T>300</T>
+        <tau>1</tau>
+
+        <Q_rate>1</Q_rate>
+        <Q>
+            0 0 0  0 0 0 
+            1 1 1 1
+
+            0 0 0   1 1 1
+            1 1 1 1
+        </Q>
+        <Qf>
+            1 1 1   1 1 1
+            1 1 1 1
+
+            10 10 10   10 10 10
+            10 10 10 10
+        </Qf>
+
+        <Qf_rate>100</Qf_rate>
+
+        <!-- <StartState> 0 0 0     0 0 0 1     0 0 0    0 0 0      0   0    0    0      0 0 0 0</StartState> -->
+        <!-- <GoalState>  0 0 5     0 0 0 1     0 0 0    0 0 0      1.5   1.5  1.5  1.5      0 0 0 0</GoalState> -->
+
+        <StartState>  0  0  0        0 0 0 1       0     0    0     0          0 0 0  0 0 0  0 0 0 0</StartState>
+        <GoalState>  10 10 10        0 0 0 1       0     0    0     0          0 0 0  0 0 0  0 0 0 0</GoalState>
+    </DynamicTimeIndexedShootingProblem>
+</PlannerDemoConfig>

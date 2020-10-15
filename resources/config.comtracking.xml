@@ -46,7 +46,7 @@
 
 <!-- for tracking -->
         <LossType>Huber</LossType>
-        <L1Rate>1e-2</L1Rate>
+        <L1Rate>1e-3</L1Rate>
         <ControlCostWeight>1e-2</ControlCostWeight>
         <!-- <R_rate>5e-5</R_rate> -->
         <R_rate>0</R_rate>
@@ -63,7 +63,7 @@
                         <!-- Thrusters can only fire in one direction... -->
                         <ControlLimitsLow>  0</ControlLimitsLow>
                         <ControlLimitsHigh>
-                            300
+                            500
                         </ControlLimitsHigh>
                         <Thrusters>
                             <ForceInput LinkName="base_to_thruster_bot_0" ForceDirection="0 0 1"/>
@@ -89,14 +89,14 @@
                             <ForceInput LinkName="base_to_thruster_top_7" ForceDirection="0 0 1"/>
                             <ForceInput LinkName="base_to_thruster_top_8" ForceDirection="0 0 1"/>
                         </Thrusters>
-                        <dt>0.1</dt>
+                        <dt>0.05</dt>
                     </SatelliteDynamicsSolver>
                 </DynamicsSolver>
             </Scene>
         </PlanningScene>
 
         <T>600</T>
-        <tau>0.1</tau>
+        <tau>0.05</tau>
 
         <!-- disable this for no tracking -->
         <Q_rate>1e1</Q_rate>
@@ -106,7 +106,7 @@
             0 0 0 0 0 0
         </Q>
 
-        <Qf_rate>1e5</Qf_rate>
+        <Qf_rate>1e3</Qf_rate>
 
         <!-- Going down and rotate 90 degrees -->
         <!-- <GoalState> 0 0 0     0 0 0 1    0 0 0    0 0 0    </GoalState>
