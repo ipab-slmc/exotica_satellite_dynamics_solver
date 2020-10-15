@@ -36,10 +36,10 @@
 
 <!-- without tracking -->
         <LossType>Huber</LossType>
-        <L1Rate>1e-3</L1Rate>
-        <ControlCostWeight>1e-2</ControlCostWeight>
-        <R_rate>1e-5</R_rate>
-        <!-- <R_rate>0</R_rate> -->
+        <L1Rate>1e-2</L1Rate>
+        <ControlCostWeight>1e-3</ControlCostWeight>
+        <!-- <R_rate>5e-5</R_rate> -->
+        <R_rate>0</R_rate>
 
         <PlanningScene>
             <Scene>
@@ -84,25 +84,26 @@
             </Scene>
         </PlanningScene>
 
-        <T>250</T>
+        <T>200</T>
         <tau>0.1</tau>
 
         <!-- disable this for no tracking -->
-        <!-- <Q_rate>1e-1</Q_rate> -->
-        <Q_rate>0</Q_rate>
+        <Q_rate>1e-1</Q_rate>
+        <!-- <Q_rate>0</Q_rate> -->
         <Q>
+            1 1 1 0 0 0
             0 0 0 0 0 0
-            0 0 0 1 1 1
         </Q>
 
-        <Qf_rate>1e3</Qf_rate>
+        <Qf_rate>1e5</Qf_rate>
 
         <!-- Going down and rotate 90 degrees -->
-        <StartState>  0 0 0   0 0.70710678118654746172 0 0.70710678118654746172    0 0 0    0 0 0    </StartState>
-        <GoalState>   5 0 0   0 0.70710678118654746172 0 -0.70710678118654746172    0 0 0    0 0 0    </GoalState>
+        <!-- <GoalState>   0 0 0     0 0 0 1    0 0 0    0 0 0    </GoalState> -->
+        <!-- <StartState>  5 0 0   0 0.70710678118654746172 0 0.70710678118654746172    0 0 0    0 0 0    </StartState> -->
 
         <!-- Apollo maneuver / flip -->
-        <!-- <StartState>  0 0 0    0 0 0 1   0 0 0    0 0 0    </StartState> -->
-        <!-- <GoalState>   0 0 5    0 1 0 0   0 0 0    0 0 0    </GoalState> -->
+        <StartState>  0 0 0    0 0 0 1   0 0 0    0 0 0    </StartState>
+        <GoalState>   0 0 0    0 0.70710678118654746172 0 0.70710678118654746172   0 0 0    0 0 0    </GoalState>
+
     </DynamicTimeIndexedShootingProblem>
 </PlannerDemoConfig>
