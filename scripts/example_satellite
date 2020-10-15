@@ -72,16 +72,21 @@ def create_marker(marker_id, scale, pos, orientation, color, marker_type, ns="",
 
 # ===================================================================
 
-# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.xml')
-# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.arm.xml')
-solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.apollo.xml')
-# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.arm.taskmap.xml')
-# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.collision.xml')
-# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.ssl1300.xml')
-# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.collision.reach.xml')
+
+# solver_l2 = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.apollo.l2.xml')
+# solution_l2 = solver_l2.solve()
+
+# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.apollo.xml')
+solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.com.track.xml')
+
 problem = solver.get_problem()
 scene = problem.get_scene()
 ds = scene.get_dynamics_solver()
+
+# warmstart
+# for t in range(solver_l2.get_problem().T - 1):
+#     u_l2 = solution_l2[t,:]
+#     problem.update(u_l2, t)
 
 print("nq", ds.nq)
 print("nv", ds.nv)
@@ -109,7 +114,7 @@ fig_convergence = plt.figure(1)
 fig_convergence.set_dpi(300)
 plt.plot(costs[1], label='Total Cost')
 plt.plot(np.array(costs[1])-np.array(solver.control_cost_evolution), label='Task')
-plt.plot(solver.control_cost_evolution, label='Control')
+plt.plot(solver.control_cost_evolution, label='Control Cost')
 # plt.tight_layout()
 plt.legend()
 plt.xlim(0)
@@ -129,9 +134,9 @@ for t in range(problem.T):
         error = problem.cost.get_task_error(task, t)
         cost_by_task_and_timestep[task][t] = rho * np.dot(error, error.T)
         #print(task, t, rho, error, cost_by_task_and_timestep[task][t])
-cost_by_task_and_timestep['Control'] = np.zeros((problem.T,))
+cost_by_task_and_timestep['Control Cost'] = np.zeros((problem.T,))
 for t in range(problem.T-1):
-    cost_by_task_and_timestep['Control'][t] = problem.get_control_cost(t)
+    cost_by_task_and_timestep['Control Cost'][t] = problem.get_control_cost(t)
 
 fig_cost = plt.figure(2)
 fig_cost.set_dpi(300)
@@ -143,6 +148,9 @@ plt.ylabel('Cost')
 plt.xlabel('Timestep')
 plt.yscale('log')
 plt.legend()
+
+fig_control = plt.figure(3)
+plt.plot(solution)
 
 # fig, ax = plt.subplots(5, 3)
 # ax = ax.flatten()

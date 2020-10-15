@@ -10,8 +10,8 @@
 
     <ControlLimitedFeasibilityDrivenDDPSolver Name="BoxFDDP">
         <Debug>1</Debug>
-        <MaxIterations>500</MaxIterations>
-        <RegularizationRate>0.1</RegularizationRate>
+        <MaxIterations>200</MaxIterations>
+        <RegularizationRate>1</RegularizationRate>
         <UseNewBoxQP>1</UseNewBoxQP>
         <BoxQPUseCholeskyFactorization>0</BoxQPUseCholeskyFactorization>
     </ControlLimitedFeasibilityDrivenDDPSolver>
@@ -31,28 +31,15 @@
     </AnalyticDDPSolver> -->
     
     <DynamicTimeIndexedShootingProblem Name="satellite">
-        <!-- <LossType>Huber</LossType>
-        <HuberRate>0.1</HuberRate>
-        <R_rate>0</R_rate> -->
-
         <!-- <LossType>L2</LossType>         -->
-        <!-- <R_rate>1e-5</R_rate> -->
+        <!-- <R_rate>1e-2</R_rate> -->
 
-        <!-- ok but not really sparse. -->
-        <!-- <LossType>SmoothL1</LossType>
-        <L1Rate>1.01</L1Rate>
-        <L1IncreaseRate>1.05</L1IncreaseRate>
-        <MaxL1Rate>1e2</MaxL1Rate>
-        <ControlCostWeight>0.01</ControlCostWeight>
-        <R_rate>0</R_rate> -->
-
-        <LossType>SmoothL1</LossType>
-        <L1Rate>1.1</L1Rate>
-        <L1IncreaseRate>1.05</L1IncreaseRate>
-        <MaxL1Rate>1e5</MaxL1Rate>
-        <ControlCostWeight>0.01</ControlCostWeight>
-        <R_rate>0</R_rate>
-
+<!-- without tracking -->
+        <LossType>Huber</LossType>
+        <L1Rate>1e-3</L1Rate>
+        <ControlCostWeight>1e-2</ControlCostWeight>
+        <R_rate>1e-5</R_rate>
+        <!-- <R_rate>0</R_rate> -->
 
         <PlanningScene>
             <Scene>
@@ -65,10 +52,7 @@
                         <!-- Thrusters can only fire in one direction... -->
                         <ControlLimitsLow>  0</ControlLimitsLow>
                         <ControlLimitsHigh>
-                            1000
-                            1000
-                            200 200 200 200 200 200 200 200 
-                            200 200 200 200 200 200 200 200
+                            500
                         </ControlLimitsHigh>
                         <Thrusters>
                             <ForceInput LinkName="base_to_thruster_bot_0" ForceDirection="0 0 1"/>
@@ -103,17 +87,19 @@
         <T>500</T>
         <tau>0.05</tau>
 
-        <Q_rate>1</Q_rate>
+        <!-- disable this for no tracking -->
+        <Q_rate>0</Q_rate>
+        <!-- <Q_rate>0</Q_rate> -->
         <Q>
-            0 0 0 0 0 0
             1 1 1 1 1 1
+            0 0 0 0 0 0
         </Q>
 
-        <Qf_rate>1e5</Qf_rate>
+        <Qf_rate>1e3</Qf_rate>
 
         <!-- Going down and rotate 90 degrees -->
-        <!-- <GoalState> 0 0 0     0 0 0 1    0 0 0    0 0 0    </GoalState>
-        <StartState>  0 0 5   0 0.70710678118654746172 0 0.70710678118654746172    0 0 0    0 0 0    </StartState> -->
+        <!-- <GoalState>   0 0 0     0 0 0 1    0 0 0    0 0 0    </GoalState> -->
+        <!-- <StartState>  5 0 0   0 0.70710678118654746172 0 0.70710678118654746172    0 0 0    0 0 0    </StartState> -->
 
         <!-- Apollo maneuver / flip -->
         <StartState>  0 0 0    0 0.70710678118654746172 0 0.70710678118654746172   0 0 0    0 0 0    </StartState>
