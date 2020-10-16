@@ -294,15 +294,8 @@ while True:
             # problem.update(u, t)
             # scene.update(ds.get_position(problem.X[:,t]))
 
-            # fix quaternion issues
-            _x = np.copy(problem.X[:, t])
-            for i in range(3, 7):
-                if np.abs(_x[i]) < 1e-3:
-                    _x[i] = 0
-
-            # scene.set_model_state(ds.get_position(problem.X[:,t]))
-            scene.set_model_state(ds.get_position(_x))
-            print(problem.X[:,t])
+            scene.set_model_state(ds.get_position(problem.X[:,t]))
+            # print(problem.X[:,t])
 
             if not marker_array_published:
                 p = Point()
