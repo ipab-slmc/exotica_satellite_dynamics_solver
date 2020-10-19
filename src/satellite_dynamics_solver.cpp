@@ -31,6 +31,7 @@
 #include <exotica_satellite_dynamics_solver/satellite_dynamics_solver.h>
 #include <pinocchio/algorithm/joint-configuration.hpp>
 #include <pinocchio/math/quaternion.hpp>
+#include <pinocchio/math/rpy.hpp>
 
 REGISTER_DYNAMICS_SOLVER_TYPE("SatelliteDynamicsSolver", exotica::SatelliteDynamicsSolver)
 
@@ -145,7 +146,10 @@ Eigen::VectorXd SatelliteDynamicsSolver::GetPosition(Eigen::VectorXdRefConst x_i
     // Convert quaternion to Euler angles.
     Eigen::VectorXd xyz_rpy(num_positions_ - 1);
     xyz_rpy.head<3>() = x_in.head<3>();
-    xyz_rpy.segment<3>(3) = Eigen::Quaterniond(x_in.segment<4>(3)).toRotationMatrix().eulerAngles(0, 1, 2);
+    // Eigen has some issues when converting to Euler angles:
+    // xyz_rpy.segment<3>(3) = Eigen::Quaterniond(x_in.segment<4>(3)).toRotationMatrix().eulerAngles(0, 1, 2);
+    // Hence, use Pinocchio:
+    xyz_rpy.segment<3>(3) = pinocchio::rpy::matrixToRpy(Eigen::Quaterniond(x_in.segment<4>(3)).toRotationMatrix());
     xyz_rpy.segment(6, num_aux_joints_) = x_in.segment(7, num_aux_joints_);
     return xyz_rpy;
 }
