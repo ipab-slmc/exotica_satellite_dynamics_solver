@@ -98,11 +98,11 @@
         <Qf_rate>1e3</Qf_rate>
 
         <!-- Going down and rotate 90 degrees -->
-        <StartState>  0 0 0   0 0.70710678118654746172 0 0.70710678118654746172    0 0 0    0 0 0    </StartState>
-        <GoalState>   5 0 0   0 0.70710678118654746172 0 -0.70710678118654746172    0 0 0    0 0 0    </GoalState>
+        <!-- <StartState>  0 0 0   0 0.70710678118654746172 0 0.70710678118654746172    0 0 0    0 0 0    </StartState> -->
+        <!-- <GoalState>   5 0 0   0 0.70710678118654746172 0 -0.70710678118654746172    0 0 0    0 0 0    </GoalState> -->
 
         <!-- Apollo maneuver / flip -->
-        <!-- <StartState>  0 0 0    0 0 0 1   0 0 0    0 0 0    </StartState> -->
-        <!-- <GoalState>   0 0 5    0 1 0 0   0 0 0    0 0 0    </GoalState> -->
+        <StartState>  0 0 0    0 0 0 1   0 0 0    0 0 0    </StartState>
+        <GoalState>   0 0 5    0 1 0 0   0 0 0    0 0 0    </GoalState>
     </DynamicTimeIndexedShootingProblem>
 </PlannerDemoConfig>

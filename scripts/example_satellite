@@ -78,8 +78,9 @@ def create_marker(marker_id, scale, pos, orientation, color, marker_type, ns="",
 
 # solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.apollo.xml')
 # solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.com.track.xml')
-# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.com.track.2.xml')
-solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.rotate.inplace.xml')
+solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.com.track.2.xml')
+# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.movez.xml')
+# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.rotate.inplace.xml')
 
 problem = solver.get_problem()
 scene = problem.get_scene()
@@ -162,6 +163,20 @@ for i in range(problem.T - 1):
     times.append(times[i - 1] + problem.tau)
 times = times[1:]
 
+# print(((problem.X[0,1:] - problem.X[0,:-1])/0.1)[0:30])
+# print('=' * 50)
+# print(problem.X[7,1:31])
+# print(problem.X[8,1:31])
+# print(problem.X[9,1:31])
+
+import pickle
+pickle.dump({
+    'times': times, 
+    'solution': solution,
+    'trajectory': problem.X
+}, open('example_satellite.p', 'wb'))
+
+# exit(0)
 # for i in range(solution.shape[1]):
 #     ax[i].plot(times, solution[:,i])
 #     ax[i].set_xlabel('time (s.)')

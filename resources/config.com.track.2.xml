@@ -63,7 +63,7 @@
                         <!-- Thrusters can only fire in one direction... -->
                         <ControlLimitsLow>  0</ControlLimitsLow>
                         <ControlLimitsHigh>
-                            300
+                            200
                         </ControlLimitsHigh>
                         <Thrusters>
                             <ForceInput LinkName="base_to_thruster_bot_0" ForceDirection="0 0 1"/>
