@@ -11,7 +11,7 @@
     <ControlLimitedFeasibilityDrivenDDPSolver Name="BoxFDDP">
         <Debug>1</Debug>
         <MaxIterations>200</MaxIterations>
-        <RegularizationRate>1</RegularizationRate>
+        <RegularizationRate>10</RegularizationRate>
         <UseNewBoxQP>1</UseNewBoxQP>
         <BoxQPUseCholeskyFactorization>0</BoxQPUseCholeskyFactorization>
     </ControlLimitedFeasibilityDrivenDDPSolver>
@@ -47,7 +47,9 @@
 <!-- for tracking -->
         <LossType>Huber</LossType>
         <HuberRate>1</HuberRate>
-        <ControlCostWeight>5e-4</ControlCostWeight>
+        <ControlCostWeight>1e-3</ControlCostWeight>
+
+        <!-- <SmoothingCostWeight>1e-4</SmoothingCostWeight> -->
         <!-- <R_rate>5e-5</R_rate> -->
         <R_rate>0</R_rate>
 
@@ -63,7 +65,7 @@
                         <!-- Thrusters can only fire in one direction... -->
                         <ControlLimitsLow>  0</ControlLimitsLow>
                         <ControlLimitsHigh>
-                            200
+                            200 200  50 50 50 50  50 50 50 50  50 50 50 50  50 50 50 50  
                         </ControlLimitsHigh>
                         <Thrusters>
                             <ForceInput LinkName="base_to_thruster_bot_0" ForceDirection="0 0 1"/>
