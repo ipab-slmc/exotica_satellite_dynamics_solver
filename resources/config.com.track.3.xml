@@ -47,7 +47,9 @@
 <!-- for tracking -->
         <LossType>Huber</LossType>
         <HuberRate>1</HuberRate>
-        <ControlCostWeight>5e-4</ControlCostWeight>
+        <ControlCostWeight>1e-3</ControlCostWeight>
+
+        <!-- <SmoothingCostWeight>1e-4</SmoothingCostWeight> -->
         <!-- <R_rate>5e-5</R_rate> -->
         <R_rate>0</R_rate>
 
