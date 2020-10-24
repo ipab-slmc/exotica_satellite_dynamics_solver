@@ -11,7 +11,7 @@
     <ControlLimitedFeasibilityDrivenDDPSolver Name="BoxFDDP">
         <Debug>1</Debug>
         <MaxIterations>200</MaxIterations>
-        <RegularizationRate>1</RegularizationRate>
+        <RegularizationRate>10</RegularizationRate>
         <UseNewBoxQP>1</UseNewBoxQP>
         <BoxQPUseCholeskyFactorization>0</BoxQPUseCholeskyFactorization>
     </ControlLimitedFeasibilityDrivenDDPSolver>
@@ -63,31 +63,31 @@
                         <!-- Thrusters can only fire in one direction... -->
                         <ControlLimitsLow>  0</ControlLimitsLow>
                         <ControlLimitsHigh>
-                            200
+                            200 200 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50 50
                         </ControlLimitsHigh>
                         <Thrusters>
-                            <ForceInput LinkName="base_to_thruster_bot_0" ForceDirection="0 0 1"/>
-                            <ForceInput LinkName="base_to_thruster_top_0" ForceDirection="0 0 1"/>
+                            <ForceInput LinkName="base_to_thruster_bot_0" ForceDirection="0 0 -1"/>
+                            <ForceInput LinkName="base_to_thruster_top_0" ForceDirection="0 0 -1"/>
 
-                            <ForceInput LinkName="base_to_thruster_bot_1" ForceDirection="0 0 1"/>
-                            <ForceInput LinkName="base_to_thruster_bot_2" ForceDirection="0 0 1"/>
-                            <ForceInput LinkName="base_to_thruster_bot_3" ForceDirection="0 0 1"/>
-                            <ForceInput LinkName="base_to_thruster_bot_4" ForceDirection="0 0 1"/>
+                            <ForceInput LinkName="base_to_thruster_bot_1" ForceDirection="0 0 -1"/>
+                            <ForceInput LinkName="base_to_thruster_bot_2" ForceDirection="0 0 -1"/>
+                            <ForceInput LinkName="base_to_thruster_bot_3" ForceDirection="0 0 -1"/>
+                            <ForceInput LinkName="base_to_thruster_bot_4" ForceDirection="0 0 -1"/>
 
-                            <ForceInput LinkName="base_to_thruster_bot_5" ForceDirection="0 0 1"/>
-                            <ForceInput LinkName="base_to_thruster_bot_6" ForceDirection="0 0 1"/>
-                            <ForceInput LinkName="base_to_thruster_bot_7" ForceDirection="0 0 1"/>
-                            <ForceInput LinkName="base_to_thruster_bot_8" ForceDirection="0 0 1"/>
+                            <ForceInput LinkName="base_to_thruster_bot_5" ForceDirection="0 0 -1"/>
+                            <ForceInput LinkName="base_to_thruster_bot_6" ForceDirection="0 0 -1"/>
+                            <ForceInput LinkName="base_to_thruster_bot_7" ForceDirection="0 0 -1"/>
+                            <ForceInput LinkName="base_to_thruster_bot_8" ForceDirection="0 0 -1"/>
                             
-                            <ForceInput LinkName="base_to_thruster_top_1" ForceDirection="0 0 1"/>
-                            <ForceInput LinkName="base_to_thruster_top_2" ForceDirection="0 0 1"/>
-                            <ForceInput LinkName="base_to_thruster_top_3" ForceDirection="0 0 1"/>
-                            <ForceInput LinkName="base_to_thruster_top_4" ForceDirection="0 0 1"/>
+                            <ForceInput LinkName="base_to_thruster_top_1" ForceDirection="0 0 -1"/>
+                            <ForceInput LinkName="base_to_thruster_top_2" ForceDirection="0 0 -1"/>
+                            <ForceInput LinkName="base_to_thruster_top_3" ForceDirection="0 0 -1"/>
+                            <ForceInput LinkName="base_to_thruster_top_4" ForceDirection="0 0 -1"/>
 
-                            <ForceInput LinkName="base_to_thruster_top_5" ForceDirection="0 0 1"/>
-                            <ForceInput LinkName="base_to_thruster_top_6" ForceDirection="0 0 1"/>
-                            <ForceInput LinkName="base_to_thruster_top_7" ForceDirection="0 0 1"/>
-                            <ForceInput LinkName="base_to_thruster_top_8" ForceDirection="0 0 1"/>
+                            <ForceInput LinkName="base_to_thruster_top_5" ForceDirection="0 0 -1"/>
+                            <ForceInput LinkName="base_to_thruster_top_6" ForceDirection="0 0 -1"/>
+                            <ForceInput LinkName="base_to_thruster_top_7" ForceDirection="0 0 -1"/>
+                            <ForceInput LinkName="base_to_thruster_top_8" ForceDirection="0 0 -1"/>
                         </Thrusters>
                         <dt>0.1</dt>
                     </SatelliteDynamicsSolver>
