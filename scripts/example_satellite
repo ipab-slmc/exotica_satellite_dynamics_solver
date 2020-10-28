@@ -73,13 +73,14 @@ def create_marker(marker_id, scale, pos, orientation, color, marker_type, ns="",
 # ===================================================================
 
 
-# solver_l2 = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.apollo.l2.xml')
-# solution_l2 = solver_l2.solve()
+# solver_ws = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.com.track.3.ws.xml')
+# solution_ws = solver_ws.solve()
 
 # solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.apollo.xml')
 # solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.com.track.xml')
 # solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.com.track.2.xml')
-solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.com.track.3.xml')
+# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.com.track.3.xml')
+solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.com.track.4.xml')
 # solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.movez.xml')
 # solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.rotate.inplace.xml')
 
@@ -88,9 +89,9 @@ scene = problem.get_scene()
 ds = scene.get_dynamics_solver()
 
 # warmstart
-# for t in range(solver_l2.get_problem().T - 1):
-#     u_l2 = solution_l2[t,:]
-#     problem.update(u_l2, t)
+# for t in range(solver_ws.get_problem().T - 1):
+    # u_ws = solution_ws[t,:]
+    # problem.update(u_ws, t)
 
 print("nq", ds.nq)
 print("nv", ds.nv)
