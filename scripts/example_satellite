@@ -12,8 +12,8 @@ import pickle
 
 
 
-save_result = False
-load_last = True
+save_result = True
+load_last = False
 warmstart = False
 
 
@@ -370,8 +370,10 @@ while True:
                 if i > 2:
                     val *= 2.0
                 markerJets.markers[i].scale.x = markerJets.markers[i].scale.y = markerJets.markers[i].scale.z = val
+                markerJets.markers[i].header.stamp = rospy.Time.now()
 
             publisher.publish(markerArray)
+            
             publisher_jets.publish(markerJets)
 
             # marker with overlay for satellite
