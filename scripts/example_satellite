@@ -78,7 +78,6 @@ def create_marker(marker_id, scale, pos, orientation, color, marker_type, ns="",
 
 
 # solver_l2 = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.apollo.l2.xml')
-# solution_l2 = solver_l2.solve()
 # solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.apollo.xml')
 # solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.com.track.xml')
 # solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.com.track.2.xml')

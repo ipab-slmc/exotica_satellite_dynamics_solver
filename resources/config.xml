@@ -55,7 +55,7 @@
         <PlanningScene>
             <Scene>
                 <JointGroup>base</JointGroup>
-                <URDF>{exotica_satellite_dynamics_solver}/resources/robots/satellite/satellite.noarm.urdf</URDF>
+                <URDF>{exotica_satellite_dynamics_solver}/resources/robots/satellite/satellite.urdf</URDF>
                 <SRDF>{exotica_satellite_dynamics_solver}/resources/robots/satellite/satellite.srdf</SRDF>
                 <SetRobotDescriptionRosParams>1</SetRobotDescriptionRosParams>
                 <DynamicsSolver>
