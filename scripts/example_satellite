@@ -8,10 +8,13 @@ import signal, sys
 from time import time, sleep
 import numpy as np
 import matplotlib.pyplot as plt
+import pickle
 
 
-save_result = False
 
+save_result = True
+load_last = False
+warmstart = False
 
 
 
@@ -33,11 +36,15 @@ from geometry_msgs.msg import Point
 
 topic = 'visualization_marker_array'
 publisher = rospy.Publisher(topic, MarkerArray, queue_size=300)
+publisher_jets = rospy.Publisher('jets', MarkerArray, queue_size=300)
 
 rospy.init_node('register')
 rospy.sleep(0.5)
 
 markerArray = MarkerArray()
+markerJets = MarkerArray()
+
+thruster_names = ["thruster_bot_0", "thruster_top_0", "thruster_bot_1", "thruster_bot_2", "thruster_bot_3", "thruster_bot_4", "thruster_bot_5", "thruster_bot_6", "thruster_bot_7", "thruster_bot_8", "thruster_top_1", "thruster_top_2", "thruster_top_3", "thruster_top_4", "thruster_top_5", "thruster_top_6", "thruster_top_7", "thruster_top_8"]
 
 def create_marker(marker_id, scale, pos, orientation, color, marker_type, ns="", mesh="package://exotica_satellite_dynamics_solver/resources/robots/satellite/satellite_base.dae"):
     marker = Marker()
@@ -72,82 +79,125 @@ def create_marker(marker_id, scale, pos, orientation, color, marker_type, ns="",
 
 # ===================================================================
 
-# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.xml')
-# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.arm.xml')
+
+# solver_l2 = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.apollo.l2.xml')
+# solution_l2 = solver_l2.solve()
 # solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.apollo.xml')
-# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.arm.taskmap.xml')
-# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.collision.xml')
-# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.ssl1300.xml')
-solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.collision.reach.xml')
+# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.com.track.xml')
+# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.com.track.2.xml')
+# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.com.track.3.xml')
+solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.com.track.4.xml')
+# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.movez.xml')
+# solver = exo.Setup.load_solver('{exotica_satellite_dynamics_solver}/resources/config.rotate.inplace.xml')
+
 problem = solver.get_problem()
 scene = problem.get_scene()
 ds = scene.get_dynamics_solver()
 
-print("nq", ds.nq)
-print("nv", ds.nv)
-print("nu", ds.nu)
-print("ndx", ds.ndx)
-print("problem.num_positions", problem.num_positions)
+if not load_last:
 
-solution = solver.solve()
+    if warmstart:
+        data = pickle.load(open('warmstart_satellite.p', 'rb'))
+        times = data['times']
+        warm_solution = data['solution']
+        X = data['trajectory']
+        for t in range(solver.get_problem().T - 1):
+            u0 = warm_solution[t,:]
+            problem.update(u0, t)
 
-print('Solver took', solver.get_planning_time())
-print('Solver terminated with: ', problem.termination_criterion)
+    print("nq", ds.nq)
+    print("nv", ds.nv)
+    print("nu", ds.nu)
+    print("ndx", ds.ndx)
+    print("problem.num_positions", problem.num_positions)
 
-# Roll out to update internal problem.X
-# for t in range(problem.T - 1):
-#     problem.update(solution[t,:],t)
+    solution = solver.solve()
 
-costs = problem.get_cost_evolution()
-save_result and np.savez('satellite_results', times=costs[0], costs=costs[1], X=problem.X, U=problem.U, solution=solution)
+    print('Solver took', solver.get_planning_time())
+    print('Solver terminated with: ', problem.termination_criterion)
 
-fig_convergence = plt.figure()
-fig_convergence.set_dpi(300)
-plt.plot(costs[1], label='Total Cost')
-plt.plot(np.array(costs[1])-np.array(solver.control_cost_evolution), label='Task')
-plt.plot(solver.control_cost_evolution, label='Control')
-plt.xlabel('Iteration')
-plt.ylabel('Cost')
-plt.yscale('log')
-plt.legend()
-plt.xlim(0)
-plt.grid()
-plt.tight_layout()
+    # Roll out to update internal problem.X
+    # for t in range(problem.T - 1):
+    #     problem.update(solution[t,:],t)
 
-# Cost per timestep
-tasks = problem.cost.task_maps
-cost_by_task_and_timestep = {}
-for task in tasks:
-    cost_by_task_and_timestep[task] = np.zeros((problem.T,))
-for t in range(problem.T):
+    # Print final state to see the velocities....
+    print("Final state:", problem.X[:,-1])
+
+    costs = problem.get_cost_evolution()
+    save_result and np.savez('satellite_results', times=costs[0], costs=costs[1], X=problem.X, U=problem.U, solution=solution)
+
+    # '''
+    fig_convergence = plt.figure(1)
+    fig_convergence.set_dpi(300)
+    plt.plot(costs[1], label='Total Cost')
+    plt.plot(np.array(costs[1])-np.array(solver.control_cost_evolution), label='Task')
+    plt.plot(solver.control_cost_evolution, label='Control Cost')
+    # plt.tight_layout()
+    plt.legend()
+    plt.xlim(0)
+    plt.grid()
+    plt.xlabel('Iteration')
+    plt.ylabel('Cost')
+    plt.yscale('log')
+
+    # Cost per timestep
+    tasks = problem.cost.task_maps
+    cost_by_task_and_timestep = {}
     for task in tasks:
-        rho = problem.cost.get_rho(task, t)
-        error = problem.cost.get_task_error(task, t)
-        cost_by_task_and_timestep[task][t] = rho * np.dot(error, error.T)
-        #print(task, t, rho, error, cost_by_task_and_timestep[task][t])
-cost_by_task_and_timestep['Control'] = np.zeros((problem.T,))
-for t in range(problem.T-1):
-    cost_by_task_and_timestep['Control'][t] = problem.get_control_cost(t)
+        cost_by_task_and_timestep[task] = np.zeros((problem.T,))
+    for t in range(problem.T):
+        for task in tasks:
+            rho = problem.cost.get_rho(task, t)
+            error = problem.cost.get_task_error(task, t)
+            cost_by_task_and_timestep[task][t] = rho * np.dot(error, error.T)
+            #print(task, t, rho, error, cost_by_task_and_timestep[task][t])
+    cost_by_task_and_timestep['Control Cost'] = np.zeros((problem.T,))
+    for t in range(problem.T-1):
+        cost_by_task_and_timestep['Control Cost'][t] = problem.get_control_cost(t)
 
-fig = plt.figure()
-fig.set_dpi(300)
-for task in cost_by_task_and_timestep:
-    plt.plot(cost_by_task_and_timestep[task], label=task)
-plt.tight_layout()
-plt.xlim(0)
-plt.ylabel('Cost')
-plt.xlabel('Timestep')
-plt.yscale('log')
-plt.legend()
+    fig_cost = plt.figure(2)
+    fig_cost.set_dpi(300)
+    for task in cost_by_task_and_timestep:
+        plt.plot(cost_by_task_and_timestep[task], label=task)
+    # plt.tight_layout()
+    plt.xlim(0)
+    plt.ylabel('Cost')
+    plt.xlabel('Timestep')
+    plt.yscale('log')
+    plt.legend()
 
-# fig, ax = plt.subplots(5, 3)
-# ax = ax.flatten()
+    fig_control = plt.figure(3)
+    plt.plot(solution)
 
-times = [0]
-for i in range(problem.T - 1):
-    times.append(times[i - 1] + problem.tau)
-times = times[1:]
+    # fig, ax = plt.subplots(5, 3)
+    # ax = ax.flatten()
 
+    times = [0]
+    for i in range(problem.T - 1):
+        times.append(times[i - 1] + problem.tau)
+    times = times[1:]
+
+    # print(((problem.X[0,1:] - problem.X[0,:-1])/0.1)[0:30])
+    # print('=' * 50)
+    # print(problem.X[7,1:31])
+    # print(problem.X[8,1:31])
+    # print(problem.X[9,1:31])
+
+
+if load_last:
+    data = pickle.load(open('example_satellite.p', 'rb'))
+    times = data['times']
+    solution = data['solution']
+    X = data['trajectory']
+else:
+    pickle.dump({
+        'times': times, 
+        'solution': solution,
+        'trajectory': problem.X
+    }, open('example_satellite.p', 'wb'))
+    X = problem.X
+
+# exit(0)
 # for i in range(solution.shape[1]):
 #     ax[i].plot(times, solution[:,i])
 #     ax[i].set_xlabel('time (s.)')
@@ -165,23 +215,24 @@ times = times[1:]
 # ax[0].set_ylabel('Control')
 # ax[0].grid()
 
-# ax[1].plot(problem.X[:11,:].T)
+# ax[1].plot(X[:11,:].T)
 # ax[1].set_xlabel('Knot')
 # ax[1].set_ylabel('Position')
 # ax[1].grid()
 
-# ax[2].plot(problem.X[11:,:].T)
+# ax[2].plot(X[11:,:].T)
 # ax[2].set_xlabel('Knot')
 # ax[2].set_ylabel('Velocity')
 # ax[2].grid()
 # ax[2].hlines(0, 0, 100, color='white')
 
 plt.show()
+# '''
 
 # visualization = exo.VisualizationMoveIt(problem.get_scene())
 # visualization_traj = np.zeros((problem.num_positions - 1, problem.T))
 # for t in range(problem.T):
-#     visualization_traj[:,t] = ds.get_position(problem.X[:,t])
+#     visualization_traj[:,t] = ds.get_position(X[:,t])
 # visualization.display_trajectory(visualization_traj.T)
 
 signal.signal(signal.SIGINT, sig_int_handler)
@@ -213,8 +264,8 @@ traj_line = create_marker(
     ns='traj_line'
 )
 
-start = problem.X[:ds.nq,0]
-end = problem.X_star[:ds.nq,-1] #problem.X[:ds.nq,-1]
+start = X[:ds.nq,0]
+end = problem.X_star[:ds.nq,-1] #X[:ds.nq,-1]
 
 start_marker = create_marker(
     marker_id=1,
@@ -261,6 +312,31 @@ target_marker.color.a = 1.0
 target_marker.color.r = 1.0
 target_marker.id = 1
 
+def create_jets():
+    markerJets.markers = []
+    for i in range(ds.nu):
+        marker = Marker()
+        marker.header.stamp = rospy.Time.now()
+        marker.header.frame_id = 'exotica/'+thruster_names[i]
+        marker.action = Marker.ADD
+        marker.type = Marker.MESH_RESOURCE
+        marker.ns = thruster_names[i]
+        marker.scale.x = marker.scale.y = marker.scale.z = 1.0
+        marker.pose.position.x = 0
+        marker.pose.position.y = 0
+        marker.pose.position.z = 0
+        marker.pose.orientation.x = 0.0
+        marker.pose.orientation.y = -0.7071068
+        marker.pose.orientation.z = 0.0
+        marker.pose.orientation.w = 0.7071068
+        marker.color.a = -1.0
+        marker.id = i
+        marker.frame_locked = True
+        marker.mesh_resource = 'package://exotica_satellite_dynamics_solver/resources/robots/satellite/jet.dae'
+        marker.mesh_use_embedded_materials = True
+        markerJets.markers.append(marker)
+
+create_jets()
 
 while True:
     try:
@@ -277,25 +353,35 @@ while True:
             # u = [100, 0, 0,  0, 0, 0,  0, 0, 0, 0,    10, 0, 0]
             # print(u, t)
             # problem.update(u, t)
-            # scene.update(ds.get_position(problem.X[:,t]))
-            scene.set_model_state(ds.get_position(problem.X[:,t]))
-            # print(problem.X[:,t])
+            # scene.update(ds.get_position(X[:,t]))
+
+            scene.set_model_state(ds.get_position(X[:,t]))
+            # print(X[:,t])
 
             if not marker_array_published:
                 p = Point()
-                p.x = problem.X[0,t]
-                p.y = problem.X[1,t]
-                p.z = problem.X[2,t]
+                p.x = X[0,t]
+                p.y = X[1,t]
+                p.z = X[2,t]
                 traj_line.points.append(p)
 
+            for i in range(ds.nu):
+                val = u[i] / 70.0
+                if i > 2:
+                    val *= 2.0
+                markerJets.markers[i].scale.x = markerJets.markers[i].scale.y = markerJets.markers[i].scale.z = val
+                markerJets.markers[i].header.stamp = rospy.Time.now()
+
             publisher.publish(markerArray)
+            
+            publisher_jets.publish(markerJets)
 
             # marker with overlay for satellite
             problem.get_scene().get_kinematic_tree().publish_frames()
             update_end = time()
             # if problem.tau > update_end - update_start:
                 # sleep(problem.tau - (update_end - update_start))
-            sleep(0.02)
+            sleep(0.01)
         e = time()
         sleep(1)
         print("Time taken to roll-out:", e-s)

@@ -1,20 +1,20 @@
 <?xml version="1.0" ?>
 <PlannerDemoConfig>    
-    <FeasibilityDrivenDDPSolver Name="FDDP">
+    <!-- <FeasibilityDrivenDDPSolver Name="FDDP">
         <Debug>1</Debug>
         <MaxIterations>100</MaxIterations>
         <FunctionTolerance>1e-10</FunctionTolerance>
         <RegularizationRate>0.1</RegularizationRate>
         <ClampControlsInForwardPass>1</ClampControlsInForwardPass>
-    </FeasibilityDrivenDDPSolver>
+    </FeasibilityDrivenDDPSolver> -->
 
-    <!-- <ControlLimitedFeasibilityDrivenDDPSolver Name="BoxFDDP">
+    <ControlLimitedFeasibilityDrivenDDPSolver Name="BoxFDDP">
         <Debug>1</Debug>
-        <MaxIterations>100</MaxIterations>
+        <MaxIterations>500</MaxIterations>
         <RegularizationRate>1</RegularizationRate>
         <UseNewBoxQP>1</UseNewBoxQP>
         <BoxQPUseCholeskyFactorization>0</BoxQPUseCholeskyFactorization>
-    </ControlLimitedFeasibilityDrivenDDPSolver> -->
+    </ControlLimitedFeasibilityDrivenDDPSolver>
 
     <!-- <ControlLimitedDDPSolver Name="BoxDDP">
         <Debug>1</Debug>
@@ -35,13 +35,21 @@
         <HuberRate>0.1</HuberRate>
         <R_rate>0</R_rate> -->
 
-        <LossType>L2</LossType>        
-        <R_rate>1e-4</R_rate>
+        <!-- <LossType>L2</LossType>         -->
+        <!-- <R_rate>1e-2</R_rate> -->
 
-        <!-- <LossType>SmoothL1</LossType>
+<!-- without tracking -->
+        <!-- <LossType>SmoothL1</LossType> -->
+        <!-- <L1Rate>1e-2</L1Rate> -->
+        <!-- <ControlCostWeight>1e-3</ControlCostWeight> -->
+        <!-- <R_rate>5e-5</R_rate> -->
+
+<!-- for tracking -->
+        <LossType>Huber</LossType>
         <L1Rate>1e-2</L1Rate>
-        <ControlCostWeight>1e-3</ControlCostWeight>
-        <R_rate>5e-5</R_rate> -->
+        <ControlCostWeight>1e-2</ControlCostWeight>
+        <!-- <R_rate>5e-5</R_rate> -->
+        <R_rate>0</R_rate>
 
 
         <PlanningScene>
@@ -51,11 +59,11 @@
                 <SRDF>{exotica_satellite_dynamics_solver}/resources/robots/satellite/satellite.srdf</SRDF>
                 <SetRobotDescriptionRosParams>1</SetRobotDescriptionRosParams>
                 <DynamicsSolver>
-                    <SatelliteDynamicsSolver Name="dsolver">
+                    <SatelliteDynamicsSolver Name="dsolver" Integrator="SymplecticEuler">
                         <!-- Thrusters can only fire in one direction... -->
-                        <ControlLimitsLow>  -1000</ControlLimitsLow>
+                        <ControlLimitsLow>  0</ControlLimitsLow>
                         <ControlLimitsHigh>
-                            1000
+                            300
                         </ControlLimitsHigh>
                         <Thrusters>
                             <ForceInput LinkName="base_to_thruster_bot_0" ForceDirection="0 0 1"/>
@@ -84,40 +92,21 @@
                         <dt>0.1</dt>
                     </SatelliteDynamicsSolver>
                 </DynamicsSolver>
-            
-
-                <Links>
-                    <Link Name="Obstacle0" Transform="7.5   0   0"/>
-                </Links>
             </Scene>
         </PlanningScene>
 
-        <Maps>
-            <SphereCollision Name="Collision">
-                <Debug>1</Debug>
-                <Precision>0.1</Precision>
-                <ReferenceFrame>exotica/world_frame</ReferenceFrame>
-                <EndEffector>
-                    <Frame Link="base_link" Radius="1.5" Group="Satellite" />
-                    <Frame Link="Obstacle0" Radius="0.5" Group="Obstacle0" />
-                </EndEffector>
-            </SphereCollision>
-        </Maps>
-
-        <Cost>
-            <Task Task="Collision" Rho="1e3"/>
-        </Cost>
-
-        <T>500</T>
+        <T>600</T>
         <tau>0.1</tau>
 
-        <Q_rate>1e-1</Q_rate>
+        <!-- disable this for no tracking -->
+        <Q_rate>0</Q_rate>
+        <!-- <Q_rate>0</Q_rate> -->
         <Q>
             1 1 1 1 1 1
-            1 1 1 1 1 1
+            0 0 0 0 0 0
         </Q>
 
-        <Qf_rate>1e3</Qf_rate>
+        <Qf_rate>1e5</Qf_rate>
 
         <!-- Going down and rotate 90 degrees -->
         <!-- <GoalState> 0 0 0     0 0 0 1    0 0 0    0 0 0    </GoalState>
@@ -126,6 +115,9 @@
         <!-- Apollo maneuver / flip -->
         <StartState>  0 0 0    0 0.70710678118654746172 0 0.70710678118654746172   0 0 0    0 0 0    </StartState>
         <!-- <GoalState>   5 0 0    0 0.70710678118654746172 0 -0.70710678118654746172   0 0 0    0 0 0    </GoalState> -->
-        <GoalState>   15 0 0    0 0.70710678118654746172 0 0.70710678118654746172   0 0 0    0 0 0    </GoalState>
+        <GoalState>   0.0 0.0 5.0    0 0.70710678118654746172 0 0.70710678118654746172   0 0 0    0 0 0
+        
+        </GoalState>
+        <!-- <GoalState>   3 2 1    0 0.70710678118654746172 0 0.70710678118654746172   0 0 0    0 0 0    </GoalState> -->
     </DynamicTimeIndexedShootingProblem>
 </PlannerDemoConfig>

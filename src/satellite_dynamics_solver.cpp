@@ -31,6 +31,7 @@
 #include <exotica_satellite_dynamics_solver/satellite_dynamics_solver.h>
 #include <pinocchio/algorithm/joint-configuration.hpp>
 #include <pinocchio/math/quaternion.hpp>
+#include <pinocchio/math/rpy.hpp>
 
 REGISTER_DYNAMICS_SOLVER_TYPE("SatelliteDynamicsSolver", exotica::SatelliteDynamicsSolver)
 
@@ -145,7 +146,10 @@ Eigen::VectorXd SatelliteDynamicsSolver::GetPosition(Eigen::VectorXdRefConst x_i
     // Convert quaternion to Euler angles.
     Eigen::VectorXd xyz_rpy(num_positions_ - 1);
     xyz_rpy.head<3>() = x_in.head<3>();
-    xyz_rpy.segment<3>(3) = Eigen::Quaterniond(x_in.segment<4>(3)).toRotationMatrix().eulerAngles(0, 1, 2);
+    // Eigen has some issues when converting to Euler angles:
+    // xyz_rpy.segment<3>(3) = Eigen::Quaterniond(x_in.segment<4>(3)).toRotationMatrix().eulerAngles(0, 1, 2);
+    // Hence, use Pinocchio:
+    xyz_rpy.segment<3>(3) = pinocchio::rpy::matrixToRpy(Eigen::Quaterniond(x_in.segment<4>(3)).toRotationMatrix());
     xyz_rpy.segment(6, num_aux_joints_) = x_in.segment(7, num_aux_joints_);
     return xyz_rpy;
 }
@@ -333,7 +337,7 @@ void SatelliteDynamicsSolver::ComputeDerivatives(const StateVector& x_in, const 
     Eigen::VectorXd x = x_in;
     NormalizeQuaternionInConfigurationVector(x);
 
-    Eigen::VectorBlock<Eigen::VectorXd> q = x.head(num_positions_);  // we'd want this to be Eigen::VectorBlock
+    Eigen::VectorBlock<Eigen::VectorXd> q = x.head(num_positions_);
     Eigen::VectorBlock<Eigen::VectorXd> v = x.tail(num_velocities_);
 
     // Four quadrants should be: 0, Identity, ddq_dq, ddq_dv
@@ -366,10 +370,14 @@ void SatelliteDynamicsSolver::ComputeDerivatives(const StateVector& x_in, const 
         // Forward Euler (RK1)
         case Integrator::RK1:
         {
-            Fx_.bottomRows(num_velocities_).noalias() = dt_ * da_dx;
+            Eigen::VectorXd v_times_dt = dt_ * v;
+
+            Fx_.topRows(num_velocities_).setZero();
             Fx_.topRightCorner(num_velocities_, num_velocities_).diagonal().array() += dt_;
-            pinocchio::dIntegrateTransport(model_, q, v, Fx_.topRows(num_velocities_), pinocchio::ARG1);
-            pinocchio::dIntegrate(model_, q, v, Fx_.topLeftCorner(num_velocities_, num_velocities_), pinocchio::ARG0, pinocchio::ADDTO);
+            pinocchio::dIntegrateTransport(model_, q, v_times_dt, Fx_.topRows(num_velocities_), pinocchio::ARG1);
+            pinocchio::dIntegrate(model_, q, v_times_dt, Fx_.topLeftCorner(num_velocities_, num_velocities_), pinocchio::ARG0, pinocchio::ADDTO);
+
+            Fx_.bottomRows(num_velocities_).noalias() = dt_ * da_dx;
             Fx_.bottomRightCorner(num_velocities_, num_velocities_).diagonal().array() += 1.0;
 
             Fu_.bottomRows(num_velocities_).noalias() = dt_ * da_du;
@@ -384,13 +392,13 @@ void SatelliteDynamicsSolver::ComputeDerivatives(const StateVector& x_in, const 
             Fx_.topRows(num_velocities_).noalias() = dt_ * dt_ * da_dx;
             Fx_.bottomRows(num_velocities_).noalias() = dt_ * da_dx;
             Fx_.topRightCorner(num_velocities_, num_velocities_).diagonal().array() += dt_;
-            pinocchio::dIntegrateTransport(model_, x.head(num_positions_), dx_v, Fx_.topRows(num_velocities_), pinocchio::ARG1);
-            pinocchio::dIntegrate(model_, x.head(num_positions_), dx_v, Fx_.topLeftCorner(num_velocities_, num_velocities_), pinocchio::ARG0, pinocchio::ADDTO);
+            pinocchio::dIntegrateTransport(model_, q, dx_v, Fx_.topRows(num_velocities_), pinocchio::ARG1);
+            pinocchio::dIntegrate(model_, q, dx_v, Fx_.topLeftCorner(num_velocities_, num_velocities_), pinocchio::ARG0, pinocchio::ADDTO);
             Fx_.bottomRightCorner(num_velocities_, num_velocities_).diagonal().array() += 1.0;
 
             Fu_.topRows(num_velocities_).noalias() = dt_ * dt_ * da_du;
             Fu_.bottomRows(num_velocities_).noalias() = dt_ * da_du;
-            pinocchio::dIntegrateTransport(model_, x.head(num_positions_), dx_v, Fu_.topRows(num_velocities_), pinocchio::ARG1);  // ARG1 = transports w.r.t. v
+            pinocchio::dIntegrateTransport(model_, q, dx_v, Fu_.topRows(num_velocities_), pinocchio::ARG1);  // ARG1 = transports w.r.t. v
         }
         break;
         default:

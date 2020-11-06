@@ -1,0 +1,108 @@
+<?xml version="1.0" ?>
+<PlannerDemoConfig>    
+    <!-- <FeasibilityDrivenDDPSolver Name="FDDP"> -->
+    <!-- <AnalyticDDPSolver Name="FDDP">
+        <Debug>1</Debug>
+        <MaxIterations>100</MaxIterations>
+        <FunctionTolerance>1e-10</FunctionTolerance>
+        <ClampControlsInForwardPass>1</ClampControlsInForwardPass>
+        <UseSecondOrderDynamics>0</UseSecondOrderDynamics>
+    </AnalyticDDPSolver> -->
+    <!-- </FeasibilityDrivenDDPSolver> -->
+
+    <ControlLimitedFeasibilityDrivenDDPSolver Name="BoxFDDP">
+        <Debug>1</Debug>
+        <MaxIterations>100</MaxIterations>
+        <FunctionTolerance>1e-10</FunctionTolerance>
+        <ClampControlsInForwardPass>1</ClampControlsInForwardPass>
+        <BoxQPUseCholeskyFactorization>0</BoxQPUseCholeskyFactorization>
+    </ControlLimitedFeasibilityDrivenDDPSolver>
+
+    <!-- <ControlLimitedDDPSolver Name="BoxDDP">
+        <Debug>1</Debug>
+        <MaxIterations>100</MaxIterations>
+        <FunctionTolerance>1e-10</FunctionTolerance>
+        <ClampControlsInForwardPass>1</ClampControlsInForwardPass>
+    </ControlLimitedDDPSolver> -->
+
+    <!-- <AnalyticDDPSolver Name="DDP">
+        <Debug>1</Debug>
+        <MaxIterations>100</MaxIterations>
+        <FunctionTolerance>1e-10</FunctionTolerance>
+        <ClampControlsInForwardPass>1</ClampControlsInForwardPass>
+    </AnalyticDDPSolver> -->
+    
+    <DynamicTimeIndexedShootingProblem Name="satellite">
+        <DerivativeOrder>2</DerivativeOrder>
+        <!-- To deactivate L2 -->
+        <!-- <R_rate>0</R_rate> -->
+
+        <!-- <LossType>Huber</LossType>
+        <HuberRate>0.01</HuberRate>
+        <ControlCostWeight>1e-1</ControlCostWeight> -->
+
+        <!-- <LossType>BiModalHuber</LossType>
+        <Mode1>    0</Mode1>
+        <Mode2>   50</Mode2> -->
+    
+        <!-- <LossType>SmoothL1</LossType> -->
+        <!-- <L1Rate>1</L1Rate> -->
+        <!-- <L1IncreaseRate>1.05</L1IncreaseRate> -->
+        <!-- <MaxL1Rate>1e3</MaxL1Rate> -->
+
+        <LossType>L2</LossType>        
+        <R_rate>1e-6</R_rate>
+
+
+
+        <PlanningScene>
+            <Scene>
+                <JointGroup>base</JointGroup>
+                <URDF>{exotica_satellite_dynamics_solver}/resources/robots/satellite/satellite.noarm.urdf</URDF>
+                <SRDF>{exotica_satellite_dynamics_solver}/resources/robots/satellite/satellite.srdf</SRDF>
+                <SetRobotDescriptionRosParams>1</SetRobotDescriptionRosParams>
+                <DynamicsSolver>
+                    <SatelliteDynamicsSolver Name="dsolver">
+                        <ControlLimitsLow>  -440</ControlLimitsLow>
+                        <ControlLimitsHigh> 440</ControlLimitsHigh>
+                        <Thrusters>
+                            <ForceInput LinkName="base_to_thruster_bot" ForceDirection="0 0 -1"/>
+                            <ForceInput LinkName="base_to_thruster_bot_1" ForceDirection="0 1 0"/>
+                            <ForceInput LinkName="base_to_thruster_bot_2" ForceDirection="-1 0 0"/>
+                            <ForceInput LinkName="base_to_thruster_bot_3" ForceDirection="0 -1 0"/>
+                            <ForceInput LinkName="base_to_thruster_bot_4" ForceDirection="1 0 0"/>
+                            
+                            <ForceInput LinkName="base_to_thruster_top" ForceDirection="0 0 1"/>
+                            <ForceInput LinkName="base_to_thruster_top_1" ForceDirection="0 1 0"/>
+                            <ForceInput LinkName="base_to_thruster_top_2" ForceDirection="-1 0 0"/>
+                            <ForceInput LinkName="base_to_thruster_top_3" ForceDirection="0 -1 0"/>
+                            <ForceInput LinkName="base_to_thruster_top_4" ForceDirection="1 0 0"/>
+                        </Thrusters>
+                        <dt>0.1</dt>
+                    </SatelliteDynamicsSolver>
+                </DynamicsSolver>
+            </Scene>
+        </PlanningScene>
+
+        <T>200</T>
+        <tau>0.1</tau>
+
+        <Q_rate>0</Q_rate>
+        <Q>
+            0 0 0 0 0 0
+            0 0 0 1 1 1
+        </Q>
+        <Qf>
+            1 1 1 1 1 1
+            1 1 1 1 1 1
+        </Qf>
+
+        <Qf_rate>1e3</Qf_rate>
+
+
+        <!-- <GoalState> 0 0 0     0 0 0 1    0 0 0    0 0 0    </GoalState> -->
+        <!-- <StartState>  0 0 5   0 0.7071068 0 0.7071068    0 0 0    0 0 0    </StartState> -->
+        <StartState>  0 0 0    0 0 0 1   0 0 0    0 0 0    </StartState>
+        <GoalState>   5 5 5    0 0 0 1   0 0 0    0 0 0    </GoalState>
+    </DynamicTimeIndexedShootingProblem>
+</PlannerDemoConfig>
