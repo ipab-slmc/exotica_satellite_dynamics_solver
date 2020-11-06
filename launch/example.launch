@@ -1,0 +1,5 @@
+<launch>
+  <node pkg="rviz" type="rviz" name="rviz" output="screen" args="-d $(find exotica_satellite_dynamics_solver)/resources/satellite.rviz"/>
+  <!-- Note: You can adjust which config is loaded inside `example_satellite` -->
+  <node pkg="exotica_satellite_dynamics_solver" type="example_satellite" name="example_satellite" output="screen"/>
+</launch>
