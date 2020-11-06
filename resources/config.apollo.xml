@@ -34,7 +34,7 @@
         <!-- <LossType>L2</LossType>         -->
         <!-- <R_rate>1e-2</R_rate> -->
 
-<!-- without tracking -->
+        <!-- without tracking -->
         <LossType>Huber</LossType>
         <L1Rate>1e-3</L1Rate>
         <ControlCostWeight>1e-2</ControlCostWeight>
@@ -44,7 +44,7 @@
         <PlanningScene>
             <Scene>
                 <JointGroup>base</JointGroup>
-                <URDF>{exotica_satellite_dynamics_solver}/resources/robots/satellite/satellite.noarm.urdf</URDF>
+                <URDF>{exotica_satellite_dynamics_solver}/resources/robots/satellite/satellite.urdf</URDF>
                 <SRDF>{exotica_satellite_dynamics_solver}/resources/robots/satellite/satellite.srdf</SRDF>
                 <SetRobotDescriptionRosParams>1</SetRobotDescriptionRosParams>
                 <DynamicsSolver>

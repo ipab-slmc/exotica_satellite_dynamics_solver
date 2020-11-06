@@ -4,17 +4,9 @@
     A URDF file must exist for this robot as well, where the joints and the links that are referenced are defined
 -->
 <robot name="satellite">
-    <group name="base">
-        <joint name="world_joint"/>
-    </group>
+  <group name="base">
+    <joint name="world_joint"/>
+  </group>
 
-    <group name="base_with_arm">
-        <joint name="world_joint"/>
-        <joint name="base_to_arm"/>
-        <joint name="arm_base_to_shoulder"/>
-        <joint name="arm_shoulder_to_elbow"/>
-        <joint name="arm_elbow_to_wrist"/>
-    </group>
-    <!-- <virtual_joint name="world_joint" type="floating" parent_frame="world_frame" child_link="base_dummy" /> -->
-    <virtual_joint name="world_joint" type="floating" parent_frame="world_frame" child_link="base_link" />
+  <virtual_joint name="world_joint" type="floating" parent_frame="world_frame" child_link="base_link" />
 </robot>
