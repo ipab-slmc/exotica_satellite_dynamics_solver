@@ -117,3 +117,4 @@ Ogre.log
 cmake-build-debug/
 .idea/
 *.urdf
+.ipynb_checkpoints/
