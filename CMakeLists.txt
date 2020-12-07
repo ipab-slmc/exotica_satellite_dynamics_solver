@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.0.2)
 project(exotica_satellite_dynamics_solver)
 
 find_package(catkin REQUIRED COMPONENTS
@@ -21,7 +21,7 @@ catkin_package(
 
 xacro_add_files(
   ${CMAKE_CURRENT_SOURCE_DIR}/resources/robots/satellite/satellite.urdf.xacro
-  INORDER INSTALL DESTINATION resources/robots/satellite)
+  INSTALL DESTINATION resources/robots/satellite)
 
 include_directories(
   include
